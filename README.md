@@ -11,7 +11,8 @@ License: MIT License にします
 ```html
 <script type="text/javascript" charset="utf-8" src="agh.sprintf.js"></script>
 <script type="text/javascript">
-var result = sprintf("書式指定文字列", args...);
+var result1 = sprintf("書式指定文字列", args...);
+var result2 = vsprintf("書式指定文字列", [args...]);
 </script>
 ```
 
@@ -19,7 +20,8 @@ var result = sprintf("書式指定文字列", args...);
 
 ```javascript
 var agh = require('./agh.sprintf.js');
-var result = agh.sprintf("書式指定文字列", args...);
+var result1 = agh.sprintf("書式指定文字列", args...);
+var result2 = agh.vsprintf("書式指定文字列", [args...]);
 ```
 
 ## 1 書式指定
@@ -222,6 +224,7 @@ sprintf("%hhx", 123456789); // "15"
  - hh, h, l, ll, w は本来、他の *\<conv>* で使われるサイズ指定だが、独自拡張で意味を与えている。
 
 ```javascript
+// 例
 sprintf("%.15g", Math.PI);  // "3.14159265358979"
 sprintf("%.15hg", Math.PI); // "3.14159250259399"
 ```
@@ -237,6 +240,7 @@ sprintf("%.15hg", Math.PI); // "3.14159250259399"
 |`'w'` |MSVC (wchar_t) |unicode|
 
 ```javascript
+// 例
 sprintf("%c", 12354); // "あ"
 sprintf("%hc", 12354); // "B"
 ```
