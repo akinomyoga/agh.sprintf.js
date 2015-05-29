@@ -4,7 +4,9 @@ C/POSIX sprintf implemented in JavaScript.
 
 sprintf の真面目な JavaScript 実装。
 
-    var result = sprintf("書式指定文字列", args...)
+```javascript
+var result = sprintf("書式指定文字列", args...);
+```
 
 ## 書式指定
 
