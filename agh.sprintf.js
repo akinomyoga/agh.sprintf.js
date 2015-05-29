@@ -640,7 +640,7 @@
     var aindex=1;
     var lastIndex=0;
     var outputLength=0;
-    var output=fmt.replace(/%(?:(\d+)\$)?([-+ 0#']*)(\d+|\*(?:\d+\$)?)?(\.(?:\d+|\*(?:\d+\$)?)?)?([hlLjztqw]|hh|ll|I(?:32|64)?)?(.|$)/g,function($0,pos,flag,width,precision,type,conv,index){
+    var output=fmt.replace(/%(?:(\d+)\$)?([-+ 0#']*)(\d+|\*(?:\d+\$)?)?(\.(?:\d+|\*(?:\d+\$)?)?)?(hh|ll|I(?:32|64)?|[hlLjztqw])?(.|$)/g,function($0,pos,flag,width,precision,type,conv,index){
       outputLength+=index-lastIndex;
       lastIndex=index+$0.length;
 
