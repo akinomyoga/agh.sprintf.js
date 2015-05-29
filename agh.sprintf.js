@@ -683,7 +683,7 @@
       if(conv.prefix&&value!=0)
         prefix+=conv.prefix(flag);
 
-      var body=conv.conv(value,flag,precision,type);
+      var body=conv.conv(value,flag,precision,type,outputLength);
 
       var lpad='',zero='',rpad='';
       width-=prefix.length+body.length;
