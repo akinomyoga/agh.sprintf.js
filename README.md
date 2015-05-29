@@ -1,8 +1,10 @@
 # agh.sprintf.js
 
-C/POSIX sprintf implemented in JavaScript.
+C, POSIX compatible sprintf written in JavaScript.
 
 sprintf の真面目な JavaScript 実装。
+
+License: MIT License にします
 
 ```html
 <script type="text/javascript" charset="utf-8" src="agh.sprintf.js"></script>
