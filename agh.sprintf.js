@@ -231,7 +231,7 @@
   function roundTowardZero(value){
     return value<0?Math.ceil(value):Math.floor(value);
   }
-
+  
   function getIntegerValue(value,type){
     // 整数は内部的には double で表現されている。
     // ビット演算は 32bit 符号付整数として実行される。
@@ -341,12 +341,12 @@
     /(^..|...)(?!$)/g
   ];
   function groupInteger(text,flag){
-    if(text.length<4||!(/'/.test(flag)))
+    if(text.length<4||!/\'/.test(flag))
       return text;
     else
       return text.replace(groupIntegerRegs[text.length%3],"$1,");
   }
-
+  
   var xdigits="0123456789abcdef";
   function convertInteger(value,flag,precision,base){
     var out='';
@@ -441,12 +441,12 @@
   function omitTrailingZeroE(text,flag){
     return text.replace(/(\.\d*?)0+e/,function($0,$1){
       if($1&&$1.length>1)
-        return $1+'e'
+        return $1+'e';
       else
         return /#/.test(flag)?'.e':'e';
     });
   }
-
+                        
   function convertScientific(value,flag,precision,type){ // conv = e E
     if(isNaN(value))
       return 'nan';
@@ -715,10 +715,15 @@
     printh(agh.Text.Escape(result[1],'html'));
     return result[0];
   }
+  function vsprintf(fmt,args){
+    var result=printf_impl.apply(this,[fmt].concat(args));
+    return result[1];
+  }
 
   var _exports=typeof window.agh!=="undefined"?agh: typeof exports!=="undefined"?exports:window;
   if(_exports){
     _exports.sprintf=sprintf;
+    _exports.vsprintf=vsprintf;
 
     if(window.agh&&window.printh)
       _exports.printf=function(){
