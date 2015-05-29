@@ -6,6 +6,8 @@ sprintf の真面目な JavaScript 実装。
 
 License: MIT License にします
 
+**HTML**
+
 ```html
 <script type="text/javascript" charset="utf-8" src="agh.sprintf.js"></script>
 <script type="text/javascript">
@@ -13,7 +15,14 @@ var result = sprintf("書式指定文字列", args...);
 </script>
 ```
 
-## 書式指定
+**node.js**
+
+```javascript
+var agh = require('./agh.sprintf.js');
+var result = agh.sprintf("書式指定文字列", args...);
+```
+
+## 1 書式指定
 
 書式は以下の形式で指定する。
 
@@ -26,7 +35,7 @@ var result = sprintf("書式指定文字列", args...);
  - 位置指定子   *\<pos>*       は引数の番号を指定する。
  - サイズ指定子 *\<type>*      は引数のサイズ・型を指定する。
 
-### 変換指定子 *\<conv>*
+### 1.1 変換指定子 *\<conv>*
 
 引数の型及び出力の形式を指定する。以下の何れかの値を取る。
 
@@ -68,7 +77,7 @@ sprintf("%d%n", 12345, a = []); // "12345", a == [5]
 sprintf("%%"); // "%"
 ```
 
-### 幅指定子 *\<width>*
+### 1.2 幅指定子 *\<width>*
 
 幅指定子は以下の形式を持つ。
 
@@ -88,7 +97,7 @@ sprintf("[%*d]", 6, 12345); // "[ 12345]"
 sprintf("[%*2$d]", 12345, 7); // "[  12345]"
 ```
 
-### 精度指定子 *\<precision>*
+### 1.3 精度指定子 *\<precision>*
 
 精度指定子は以下の形式を持つ。
 
@@ -125,7 +134,7 @@ sprintf("%.1s", "12345"); // "1"
 sprintf("%.10s", "12345"); // "12345"
 ```
 
-### フラグ *\<flags>*
+### 1.4 フラグ *\<flags>*
 
 フラグは以下の形式を持つ。
 
@@ -151,7 +160,7 @@ sprintf("[%4d][%04d]", 1, 1); // "[   1][0001]"
 sprintf("%d, %'d", 1234567, 1234567); // "1234567, 1,234,567"
 ```
 
-### 位置指定子 *\<pos>*
+### 1.5 位置指定子 *\<pos>*
 
 位置指定子は以下の形式を持つ。
 
@@ -164,7 +173,7 @@ sprintf("%d, %'d", 1234567, 1234567); // "1234567, 1,234,567"
 sprintf("%3$d %2$d %1$d %2$d %3$d", 111, 222, 333); // "333 222 111 222 333"
 ```
 
-### サイズ指定子 *\<type>*
+### 1.6 サイズ指定子 *\<type>*
 
 サイズ指定子で引数を解釈する時の精度を指定する。
 サイズ指定子は以下の何れかである。
@@ -190,11 +199,18 @@ sprintf("%3$d %2$d %1$d %2$d %3$d", 111, 222, 333); // "333 222 111 222 333"
  - JavaScript では 64bit は正確に扱えないので 32bit を native int (ptrdiff_t, size_t, long, long long, etc.) とする。
  - JavaScript では 64bit は正確に扱えないので、明示的な 64bit 指定 (`q` `I64`) については正確な出力にならないかもしれない。
 
+```javascript
+// 例
+sprintf("%x", 123456789); // "75bcd15"
+sprintf("%hx", 123456789); // "cd15"
+sprintf("%hhx", 123456789); // "15"
+```
+
 浮動小数点 (*\<conv>* = f, F, e, E, g, G) の時
 
 |指定   |準拠                    |説明  |
 |:------|:-----------------------|:-----|
-|(既定) |標準 (変換なし)         |double|
+|(既定) |標準 (double)           |double|
 |`'hh'` |独自                    | float|
 |`'h'`  |独自                    | float|
 |`'l'`  |C99  (double)           |double|
@@ -204,6 +220,11 @@ sprintf("%3$d %2$d %1$d %2$d %3$d", 111, 222, 333); // "333 222 111 222 333"
 
  - JavaScript に long double はないので double で代用する。
  - hh, h, l, ll, w は本来、他の *\<conv>* で使われるサイズ指定だが、独自拡張で意味を与えている。
+
+```javascript
+sprintf("%.15g", Math.PI);  // "3.14159265358979"
+sprintf("%.15hg", Math.PI); // "3.14159250259399"
+```
 
 文字・文字列 (*\<conv>* = c, C, s, S) の時
 
@@ -215,7 +236,12 @@ sprintf("%3$d %2$d %1$d %2$d %3$d", 111, 222, 333); // "333 222 111 222 333"
 |`'l'` |C99  (wint_t)  |unicode|
 |`'w'` |MSVC (wchar_t) |unicode|
 
-##(ToDo)
+```javascript
+sprintf("%c", 12354); // "あ"
+sprintf("%hc", 12354); // "B"
+```
+
+## 2 (ToDo)
 
 README: 使用例を追加する。他の実装との比較を追加する。
 
