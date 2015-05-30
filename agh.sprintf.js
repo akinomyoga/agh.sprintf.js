@@ -1,35 +1,63 @@
-// printf/JavaScript
-//
-// Author: K. Murase
-//
-// ChangeLog
-//
-// 2014-12-25 19:21:47 KM 様々な言語での実装を確認
-// 2013-09-05 02:05:38 KM added descriptions
-// 2013-09-01 16:08:25 KM first version
-// 2013-09-01 00:04:06 KM created
+// agh.sprintf.js
+/* ----------------------------------------------------------------------------
+
+ Author: K. Murase (akinomyoga)
+
+ Changes
+
+ * 2015-05-29 KM created git repository
+ * 2014-12-25 KM 様々な言語での実装を確認
+ * 2013-09-05 KM added descriptions
+ * 2013-09-01 KM first version
+ * 2013-09-01 KM created
+
+ ------------------------------------------------------------------------------
+
+ License: The MIT License (MIT)
+
+ Copyright (c) 2013-2015 K. Murase (akinomyoga)
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+
+ ----------------------------------------------------------------------------*/
 
 /**
  *  @section sprintf.format 書式指定
  *    書式は以下の形式で指定する。
  *    '%' \<pos\>? \<flag\> \<width\> \<precision\>? \<type\>? \<conv\>
- * 
+ *
  *    位置指定子   \<pos\>       は引数の番号を指定する。
  *    フラグ       \<flag\>      は出力の見た目を細かく指定する。
  *    幅           \<width\>     は出力時の最小文字数を指定する。
  *    精度         \<precision\> は内容をどれだけ詳しく出力するかを指定する。
  *    サイズ指定子 \<type\>      は引数のサイズ・型を指定する。
  *    変換指定子   \<conv\>      は出力する形式を指定する。
- * 
+ *
  *  @subsection sprintf.format.pos 位置指定子 (POSIX)
  *    位置指定子は以下の形式を持つ。
  *    \<pos\> := /\d+\$/
  *    整数で引数の番号を指定する。書式指定文字列の次に指定した引数の番号が 1 である。
- * 
+ *
  *  @subsection sprintf.format.flag フラグ
  *    フラグは以下の形式を持つ。
  *    \<flag\> := ( /[-+ 0#']/ | /\=./ ) +
- * 
+ *
  *    '-'  (標準)    左寄せを意味する。既定では右寄せである。
  *    '+'  (標準)    非負の数値に正号を付ける事を意味する。
  *    '#'  (標準)    整数の場合、リテラルの基数を示す接頭辞を付ける。
@@ -59,19 +87,19 @@
  *    '-'  (Python)  負号のみ表示 → 既定 (標準)
  *    "'?" (PHP)     余白文字の指定。
  *    '('  (Java)    負の数を "()" で括る。
- * 
+ *
  *  @subsection sprintf.format.width 幅指定子
  *    幅指定子は以下の形式を持つ。
  *    \<width\> := /\d+/ | '*' | '*' /\d+/ '$'
- * 
+ *
  *    /\d+/         (標準)  最小幅を整数で指定する。
  *    '*'           (標準)  次の引数を読み取って最小幅とする。
  *    '*' /\d+/ '$' (POSIX) 指定した番号の引数を最小幅とする。
- * 
+ *
  *  @subsection sprintf.format.precision 精度指定子
  *    精度指定子は以下の形式を持つ。
  *    \<precision\> := /\d+/ | '*' | '*' /\d+/ '$'
- * 
+ *
  *    /\d+/         (標準)  精度を整数で指定する。
  *    '*'           (標準)  次の引数を読み取って精度とする。
  *    '*' /\d+/ '$' (POSIX) 指定した番号の引数を精度とする。
@@ -204,7 +232,7 @@
  * - GNU screen
  */
 
-// 実装: 
+// 実装:
 // * 解析は正規表現を使えば良い。
 // * 出力結果の構成
 //   <左余白> <符号> <ゼロ> <中身> <右余白>
@@ -231,7 +259,7 @@
   function roundTowardZero(value){
     return value<0?Math.ceil(value):Math.floor(value);
   }
-  
+
   function getIntegerValue(value,type){
     // 整数は内部的には double で表現されている。
     // ビット演算は 32bit 符号付整数として実行される。
@@ -346,7 +374,7 @@
     else
       return text.replace(groupIntegerRegs[text.length%3],"$1,");
   }
-  
+
   var xdigits="0123456789abcdef";
   function convertInteger(value,flag,precision,base){
     var out='';
@@ -446,7 +474,7 @@
         return /#/.test(flag)?'.e':'e';
     });
   }
-                        
+
   function convertScientific(value,flag,precision,type){ // conv = e E
     if(isNaN(value))
       return 'nan';
@@ -515,7 +543,7 @@
     }else{
       var fr=value/10,exp=1;
     }
-    
+
     var man=generateFloatingSequence(fr,exp+precision,10);
     if(precision>0||/#/.test(flag)){
       var point=man.length-precision;
@@ -607,29 +635,30 @@
   function prefixUHex(flag)     {return /#/.test(flag)?'0X':'';}
   function prefixFloatLHex(flag){return '0x';}
   function prefixFloatUHex(flag){return '0X';}
+  function prefixPointerHex(flag){return '0x';}
 
   var conversions={
-    d:{getv:getIntegerValue , integral:true , signed:true , prefix:null           , conv:convertDecimal     },
-    i:{getv:getIntegerValue , integral:true , signed:true , prefix:null           , conv:convertDecimal     },
-    u:{getv:getUnsignedValue, integral:true , signed:false, prefix:null           , conv:convertDecimal     },
-    o:{getv:getUnsignedValue, integral:true , signed:false, prefix:prefixOctal    , conv:convertOctal       },
-    x:{getv:getUnsignedValue, integral:true , signed:false, prefix:prefixLHex     , conv:convertLowerHex    },
-    X:{getv:getUnsignedValue, integral:true , signed:false, prefix:prefixUHex     , conv:convertUpperHex    },
-    e:{getv:getFloatValue   , integral:false, signed:true , prefix:null           , conv:convertScientific  },
-    E:{getv:getFloatValue   , integral:false, signed:true , prefix:null           , conv:convertScientificU },
-    f:{getv:getFloatValue   , integral:false, signed:true , prefix:null           , conv:convertFloating    },
-    F:{getv:getFloatValue   , integral:false, signed:true , prefix:null           , conv:convertFloatingU   },
-    g:{getv:getFloatValue   , integral:false, signed:true , prefix:null           , conv:convertCompact     },
-    G:{getv:getFloatValue   , integral:false, signed:true , prefix:null           , conv:convertCompactU    },
-    a:{getv:getFloatValue   , integral:false, signed:true , prefix:prefixFloatLHex, conv:convertScientificHex },
-    A:{getv:getFloatValue   , integral:false, signed:true , prefix:prefixFloatUHex, conv:convertScientificHexU},
-    c:{getv:getCharValue    , integral:false, signed:false, prefix:null           , conv:convertChar        },
-    C:{getv:getCharValue    , integral:false, signed:false, prefix:null           , conv:convertChar        },
-    s:{getv:null            , integral:false, signed:false, prefix:null           , conv:convertString      },
-    S:{getv:null            , integral:false, signed:false, prefix:null           , conv:convertString      },
-    p:{getv:getUnsignedValue, integral:false, signed:false, prefix:null           , conv:convertUpperHex    },
-    n:{getv:null            , integral:false, signed:false, prefix:null           , conv:convertOutputLength},
-    '%':{noValue:true       , integral:false, signed:false, prefix:null           , conv:convertEscaped     }
+    d:{getv:getIntegerValue , integral:true , signed:true , prefix:null            , conv:convertDecimal       },
+    i:{getv:getIntegerValue , integral:true , signed:true , prefix:null            , conv:convertDecimal       },
+    u:{getv:getUnsignedValue, integral:true , signed:false, prefix:null            , conv:convertDecimal       },
+    o:{getv:getUnsignedValue, integral:true , signed:false, prefix:prefixOctal     , conv:convertOctal         },
+    x:{getv:getUnsignedValue, integral:true , signed:false, prefix:prefixLHex      , conv:convertLowerHex      },
+    X:{getv:getUnsignedValue, integral:true , signed:false, prefix:prefixUHex      , conv:convertUpperHex      },
+    e:{getv:getFloatValue   , integral:false, signed:true , prefix:null            , conv:convertScientific    },
+    E:{getv:getFloatValue   , integral:false, signed:true , prefix:null            , conv:convertScientificU   },
+    f:{getv:getFloatValue   , integral:false, signed:true , prefix:null            , conv:convertFloating      },
+    F:{getv:getFloatValue   , integral:false, signed:true , prefix:null            , conv:convertFloatingU     },
+    g:{getv:getFloatValue   , integral:false, signed:true , prefix:null            , conv:convertCompact       },
+    G:{getv:getFloatValue   , integral:false, signed:true , prefix:null            , conv:convertCompactU      },
+    a:{getv:getFloatValue   , integral:false, signed:true , prefix:prefixFloatLHex , conv:convertScientificHex },
+    A:{getv:getFloatValue   , integral:false, signed:true , prefix:prefixFloatUHex , conv:convertScientificHexU},
+    c:{getv:getCharValue    , integral:false, signed:false, prefix:null            , conv:convertChar          },
+    C:{getv:getCharValue    , integral:false, signed:false, prefix:null            , conv:convertChar          },
+    s:{getv:null            , integral:false, signed:false, prefix:null            , conv:convertString        },
+    S:{getv:null            , integral:false, signed:false, prefix:null            , conv:convertString        },
+    p:{getv:getUnsignedValue, integral:false, signed:false, prefix:prefixPointerHex, conv:convertUpperHex      },
+    n:{getv:null            , integral:false, signed:false, prefix:null            , conv:convertOutputLength  },
+    '%':{noValue:true       , integral:false, signed:false, prefix:null            , conv:convertEscaped       }
   };
 
   function printf_impl(fmt){
