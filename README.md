@@ -2,17 +2,15 @@
 
 C, POSIX compatible sprintf written in JavaScript.
 
-sprintf の真面目な JavaScript 実装。
-
-License: MIT License にします
+License: MIT License
 
 **HTML**
 
 ```html
 <script type="text/javascript" charset="utf-8" src="agh.sprintf.js"></script>
 <script type="text/javascript">
-var result1 = sprintf("書式指定文字列", args...);
-var result2 = vsprintf("書式指定文字列", [args...]);
+var result1 = sprintf("format string", args...);
+var result2 = vsprintf("format string", [args...]);
 </script>
 ```
 
@@ -20,47 +18,47 @@ var result2 = vsprintf("書式指定文字列", [args...]);
 
 ```javascript
 var agh = require('./agh.sprintf.js');
-var result1 = agh.sprintf("書式指定文字列", args...);
-var result2 = agh.vsprintf("書式指定文字列", [args...]);
+var result1 = agh.sprintf("format string", args...);
+var result2 = agh.vsprintf("format string", [args...]);
 ```
 
-## 1 書式指定
+## 1 Format specifiers
 
-書式は以下の形式で指定する。
+The first argument of sprintf is a format string which can contain the following form of format specifiers:
 
 `'%'` *\<pos>***?** *\<flags>***?** *\<width>***?** *\<precision>***?** *\<type>***?** *\<conv>*
 
- - 変換指定子   *\<conv>*      は出力する形式を指定する。
- - 幅           *\<width>*     は出力時の最小文字数を指定する。
- - 精度         *\<precision>* は内容をどれだけ詳しく出力するかを指定する。
- - フラグ       *\<flags>*     は出力の見た目を細かく指定する。
- - 位置指定子   *\<pos>*       は引数の番号を指定する。
- - サイズ指定子 *\<type>*      は引数のサイズ・型を指定する。
+ - Conversion specifier *\<conv>* specifies a output format.
+ - Width specifier *\<width>* specifies a minimal number of characters output.
+ - Precision specifiers *\<precision>* specifies a *precision* of the output.
+ - Flags *\<flags>* controls the detailed behavior of padding, prefix, etc.
+ - Position parameter *\<pos>* specifies a argument by its index.
+ - Size specifier *\<type>* determines the data type of the argument.
 
-### 1.1 変換指定子 *\<conv>*
+### 1.1 Conversion specifier *\<conv>*
 
-引数の型及び出力の形式を指定する。以下の何れかの値を取る。
+Conversion specifier determines the interpretation of the argument and the format of the output. 
 
-|指定|準拠|説明|
+|Specifier|Standard|Description|
 |:--|:--|:--|
-|`'d', 'i'`|標準|10進符号付き整数
-|`'o'`     |標準| 8進符号無し整数
-|`'u'`     |標準|10進符号無し整数
-|`'x', 'X'`|標準|16進符号無し整数     (lower/upper case は 0xa/0XA などの違い)
-|`'f', 'F'`|標準|浮動小数点数         (lower/upper case は inf/INF などの違い)
-|`'e', 'E'`|標準|浮動小数点数指数表記 (lower/upper case は 1e+5/1E+5 などの違い)
-|`'g', 'G'`|標準|浮動小数点数短い表記 (lower/upper case は 1e+5/1E+5 などの違い)
-|`'a', 'A'`|C99 |浮動小数点数16進表現 (lower/upper case は 1p+5/1P+5 などの違い)
-|`'c'`     |標準|文字
-|`'C'`     |XSI |文字   (本来 wchar_t 用だがこの実装では c と区別しない)
-|`'s'`     |標準|文字列
-|`'S'`     |XSI |文字列 (本来 wchar_t 用だがこの実装では s と区別しない)
-|`'p'`     |標準|ポインタ値。この実装では upper hexadecimal number で出力。
-|`'n'`     |標準|今迄の出力文字数を value[0] に格納
-|`'%'`     |標準|"%" を出力
+|`'d', 'i'`|ANSI C|decimal signed number
+|`'o'`     |ANSI C|octal unsigned number
+|`'u'`     |ANSI C|decimal unsigned number
+|`'x', 'X'`|ANSI C|hexadecimal unsigned number. lower/upper case corresponds to, e.g., 0xa/0XA.
+|`'f', 'F'`|ANSI C|floating point numbers. lower/upper case corresponds to, e.g., inf/INF.
+|`'e', 'E'`|ANSI C|floating point numbers by the scientific representation. lower/upper case corresponds to, e.g., 1e+5/1E+5.
+|`'g', 'G'`|ANSI C|floating point numbers with the specified presition.
+|`'a', 'A'`|C99   |floating point numbers in hexadecimal.
+|`'c'`     |ANSI C|character
+|`'C'`     |XSI   |character (Originally, the argument is interpreted as `wchar_t`.)
+|`'s'`     |ANSI C|string
+|`'S'`     |XSI   |string (Originally, the argument is interpreted as `wchar_t`)
+|`'p'`     |ANSI C|pointer (same as `%#x` in this implementation)
+|`'n'`     |ANSI C|stores the number of the characters output so far to `value[0]`
+|`'%'`     |ANSI C|output "%"
 
 ```javascript
-// 例
+// Examples
 sprintf("%d", 12345); // "12345"
 sprintf("%o", 12345); // "30071"
 sprintf("%u", -12345); // "4294954951"
@@ -79,50 +77,46 @@ sprintf("%d%n", 12345, a = []); // "12345", a == [5]
 sprintf("%%"); // "%"
 ```
 
-### 1.2 幅指定子 *\<width>*
+### 1.2 Width specifier *\<width>*
 
-幅指定子は以下の形式を持つ。
+The width specifier has the following form:
 
 *\<width>* **:=** `/\d+/` **|** `'*'` **|** `'*'` `/\d+/` `'$'`
 
-| 指定 | 準拠 | 説明 |
+| Specifier | Standard | Description |
 |:--|:--|:--|
-|`/\d+/`        |標準 |最小幅を整数で指定する。        |
-|`'*'`          |標準 |次の引数を読み取って最小幅とする|
-|`'*'` `/\d+/` `'$'`|POSIX|指定した番号の引数を最小幅とする|
+|`/\d+/`        |ANSI C|The minimal width is directly specified.|
+|`'*'`          |ANSI C|The next argument is consumed for the minimal width.|
+|`'*'` `/\d+/` `'$'`|POSIX|The argument specified with the index is used for the minimal width.|
 
 ```javascript
-// 例
+// Examples
 sprintf("[%1d]", 12345); // "[12345]"
 sprintf("[%8d]", 12345); // "[   12345]" 
 sprintf("[%*d]", 6, 12345); // "[ 12345]"
 sprintf("[%*2$d]", 12345, 7); // "[  12345]"
 ```
 
-### 1.3 精度指定子 *\<precision>*
+### 1.3 Precision specifier *\<precision>*
 
-精度指定子は以下の形式を持つ。
+The precision specifier has the following form:
 
 *\<precision>* **:=** `'.'` `/\d+/` **|** `'.*'` **|** `'.*'` `/\d+/` `'$'`
 
-|指定|準拠|説明|
+|Specifier|Standard|Description|
 |:--|:--|:--|
-|`'.'` `/\d+/`       |標準 |精度を整数で指定する。
-|`'.*'`              |標準 |次の引数を読み取って精度とする。
-|`'.*'` `/\d+/` `'$'`|POSIX|指定した番号の引数を精度とする。
+|`'.'` `/\d+/`       |ANSI C|The precision is directly specified.
+|`'.*'`              |ANSI C|The next argument is consumed for the precision.
+|`'.*'` `/\d+/` `'$'`|POSIX |The argument specified with the index is used for the precision.
 
-整数の場合は精度で指定した桁だけ必ず整数を出力する。例えば、精度 4 の場合は "0001" など。
-精度を指定した時はフラグで指定した '0' は無視される。
+In the case of the integer converesions (*\<conv>* = d, i, u, o, x, and X), the precision specifies the minimal number of digits with the redundant higher digits filled with zeroes. For example, 1 will be "0001" with the precision of 4. With the precision, the flag "`0`" will be ignored.
 
-浮動小数点数 *\<conv>* = f, F, e, E, a, A の場合は小数点以下の桁数を指定する。
-浮動小数点数 *\<conv>* = g, G の場合は有効桁数を指定する。
-*\<conv>* = f, F, e, E, g, G に対しては既定値は 6 である。
-*\<conv>* = a, A については倍精度浮動小数点数の16進桁数である 13 が既定値である。
+In the case that *\<conv>* = f, F, e, E, a, and A, the precision specifies the number of digits after the decimal point. In the case that *\<conv>* = g and G, the precision is the number of the significant digits. The default value of the precision for *\<conv>* = f, F, e, E, g, and G is 6. The default value for *\<conv>* = a and A is 13 which is the hexadecimal precision of the double precision floating point numbers.
 
-文字列の場合は最大出力文字数を指定する。この文字数に収まらない部分は出力されずに無視される。
+For the strings *\<conv>* = s and S, the precision specifies the maximal number of the characters to output. The left characters will be discarded.
 
 ```javascript
-// 例
+// Examples
 sprintf("%.1d", 12345); // "12345"
 sprintf("%.8d", 12345); // "00012345" 
 sprintf("%.*d", 6, 12345); // "012345"
@@ -136,23 +130,23 @@ sprintf("%.1s", "12345"); // "1"
 sprintf("%.10s", "12345"); // "12345"
 ```
 
-### 1.4 フラグ *\<flags>*
+### 1.4 Flags *\<flags>*
 
-フラグは以下の形式を持つ。
+The flag specifier has the following form:
 
 *\<flags>* **:= (** `/[-+ 0#']/` **|** `/\=./` **) +**
 
-| 指定 | 準拠 | 説明 |
+| Flag | Standard | Description |
 |:--|:--|:--|
-|`'-'`|標準|左寄せを意味する。既定では右寄せである。|
-|`'+'`|標準|非負の数値に正号を付ける事を意味する。|
-|`'#'`|標準|整数の場合、リテラルの基数を示す接頭辞を付ける。但し、値が 0 の時は接頭辞を付けない。*\<conv>* = o, x, X のそれぞれに対して "0", "0x", "0X" が接頭辞となる。<br>浮動小数点数 *\<conv>* = f, F, e, E, g, G, a, A の場合は、整数 (precision = 0) に対しても小数点を付ける (例 "123.") 事を意味する。*\<conv>* = g, G については小数末尾の 0 の連続を省略せずに全て出力する。|
-|`' '`|標準 |非負の数値の前に空白を付ける事を意味する。これは出力幅が width で指定した幅を超えても必ず出力される空白である。|
-|`'0'`|標準 |左側の余白を埋めるのに 0 を用いる。但し、空白と異なり 0 は符号や基数接頭辞の右側に追加される。|
-|`"'"`|SUSv2|*\<conv>* = d, i, f, F, g, G の整数部で桁区切 (3桁毎の ",") を出力する事を意味する。但し、flag 0 で指定される zero padding の部分には区切は入れない。|
+|`'-'`|ANSI C|The left justification instead of the default of the right justification|
+|`'+'`|ANSI C|The plus sign for positive numbers|
+|`'#'`|ANSI C|For the integer conversions, the prefix representing its base will be added if the value is not zero. The prefixes are "0", "0x", and "0X" for *\<conv>* = o, x, and X, respectively.<br>For the floating point numbers, this flag prevent to omit the decimal point even if the value is an integer. In addition, trailing zeroes will not be omitted for *\<conv>* = g and G.|
+|`' '`|ANSI C|The space in the sign position for the positive numbers. This space is not omitted even if the output width excesses the specified *\<width>*.|
+|`'0'`|ANSI C|Use "`0`" instead of "` `" for the left padding. Note that, unlike the spaces, `0`s are inserted after the sign and the prefixes.|
+|`"'"`|SUSv2|The grouping characaters, i.e. commas at every three digits, are inserted in the integral part for *\<conv>* = d, i, f, F, g, and G. Note that, the grouping characters are not inserted for the zero padding specified by the flag "`0`".|
 
 ```javascript
-// 例
+// Examples
 sprintf("[%3d][%-3d]", 1, 1); // "[  1][1  ]"
 sprintf("%d, %+d", 1, 1); // "1, +1"
 sprintf("%o, %#o, %#o", 1, 1, 0); // "1, 01, 0"
@@ -162,32 +156,31 @@ sprintf("[%4d][%04d]", 1, 1); // "[   1][0001]"
 sprintf("%d, %'d", 1234567, 1234567); // "1234567, 1,234,567"
 ```
 
-### 1.5 位置指定子 *\<pos>*
+### 1.5 Positional parameter *\<pos>*
 
-位置指定子は以下の形式を持つ。
+The positional parameter has the following form:
 
 *\<pos>* **:=** `/\d+\$/`
 
-整数で引数の番号を指定する。書式指定文字列の次に指定した引数の番号が 1 に対応する。
+This selects the argument contaning output data by its index. The argument just after the format string corresponds to the index 1.
 
 ```javascript
-// 例
+// Example
 sprintf("%3$d %2$d %1$d %2$d %3$d", 111, 222, 333); // "333 222 111 222 333"
 ```
 
-### 1.6 サイズ指定子 *\<type>*
+### 1.6 Size specifier *\<type>*
 
-サイズ指定子で引数を解釈する時の精度を指定する。
-サイズ指定子は以下の何れかである。
+The size specifier determines the exact type of the argument, e.g. the binary representation of the integers and the floating point numbers. The size specifier has a different meaning for each conversion:
 
-整数 (*\<conv>* = d, i, o, u, x, X) の時
+For the integers (*\<conv>* = d, i, o, u, x, and X),
 
-|指定   |準拠                    |説明  |
+|Size   |Standard (typical meaning)|Implementation|
 |:------|:-----------------------|:-----|
-|(既定) |標準 (int)              |double|
+|(default)|ANSI C (int)          |double|
 |`'hh'` |C99  (char)             |  8bit|
-|`'h'`  |標準 (short)            | 16bit|
-|`'l'`  |標準 (long)             | 32bit|
+|`'h'`  |ANSI C (short)          | 16bit|
+|`'l'`  |ANSI C (long)           | 32bit|
 |`'ll'` |C99  (long long)        | 32bit|
 |`'t'`  |C99  (ptrdiff_t)        | 32bit|
 |`'z'`  |C99  (size_t)           | 32bit|
@@ -197,18 +190,18 @@ sprintf("%3$d %2$d %1$d %2$d %3$d", 111, 222, 333); // "333 222 111 222 333"
 |`'I64'`|MSVC (64bit)            | 64bit|
 |`'j'`  |C99  (intmax_t)         |double|
 
- - JavaScript の整数は内部的には double の様なので指定がなければそのままである。
- - JavaScript では 64bit は正確に扱えないので 32bit を native int (ptrdiff_t, size_t, long, long long, etc.) とする。
- - JavaScript では 64bit は正確に扱えないので、明示的な 64bit 指定 (`q` `I64`) については正確な出力にならないかもしれない。
+ - If nothing is specified, the integer can be `double` value since the internal representation of the integers is `double` in JavaScript.
+ - The bit width for ptrdiff_t, size_t, long, and long long is 32 bits because the JavaScript integer does not have the precision of 64 bits.
+ - The explicit 64 bit specifiers, `q` and `I64`, may not result in correct output.
 
 ```javascript
-// 例
+// Examples
 sprintf("%x", 123456789); // "75bcd15"
 sprintf("%hx", 123456789); // "cd15"
 sprintf("%hhx", 123456789); // "15"
 ```
 
-浮動小数点 (*\<conv>* = f, F, e, E, g, G) の時
+For the floating point numbers (*\<conv>* = f, F, e, E, g, G, a, and A),
 
 |指定   |準拠                    |説明  |
 |:------|:-----------------------|:-----|
