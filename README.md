@@ -4,6 +4,8 @@ C, POSIX compatible sprintf written in JavaScript.
 
 License: MIT License
 
+See [日本語の説明](https://github.com/akinomyoga/agh.sprintf.js/blob/master/README.ja_JP.md) for the Japanese README texts.
+
 **HTML**
 
 ```html
@@ -203,43 +205,43 @@ sprintf("%hhx", 123456789); // "15"
 
 For the floating point numbers (*\<conv>* = f, F, e, E, g, G, a, and A),
 
-|指定   |準拠                    |説明  |
+|Size   |Standard                |Description|
 |:------|:-----------------------|:-----|
-|(既定) |標準 (double)           |double|
-|`'hh'` |独自                    | float|
-|`'h'`  |独自                    | float|
+|(default) |ANSI C (double)      |double|
+|`'hh'` |*Original*              | float|
+|`'h'`  |*Original*              | float|
 |`'l'`  |C99  (double)           |double|
-|`'ll'` |独自                    |double|
-|`'L'`  |標準 (long double)      |double|
-|`'w'`  |独自                    |double|
+|`'ll'` |*Original*              |double|
+|`'L'`  |ANSI C (long double)    |double|
+|`'w'`  |*Original*              |double|
 
- - JavaScript に long double はないので double で代用する。
- - hh, h, l, ll, w は本来、他の *\<conv>* で使われるサイズ指定だが、独自拡張で意味を与えている。
+ - The type `double` is used instead of `long double` since JavaScript does not have the type.
+ - The sizes `hh`, `h`, `l`, `ll`, and `w` are used for other conversions in standards.
 
 ```javascript
-// 例
+// Examples
 sprintf("%.15g", Math.PI);  // "3.14159265358979"
 sprintf("%.15hg", Math.PI); // "3.14159250259399"
 ```
 
-文字・文字列 (*\<conv>* = c, C, s, S) の時
+For characters and strings (*\<conv>* = c, C, s, and S), 
 
-|指定  |準拠           |説明   |
+|Size  |Standard       |Description   |
 |:-----|:--------------|:------|
-|(既定)|標準 (既定)    |unicode|
-|`'hh'`|独自           |  ascii|
+|(default)|ANSI C      |unicode|
+|`'hh'`|*Original*     |  ascii|
 |`'h'` |MSVC (char)    |  ascii|
 |`'l'` |C99  (wint_t)  |unicode|
 |`'w'` |MSVC (wchar_t) |unicode|
 
 ```javascript
-// 例
+// Examples
 sprintf("%c", 12354); // "あ"
 sprintf("%hc", 12354); // "B"
 ```
 
 ## 2 (ToDo)
 
-README: 使用例を追加する。他の実装との比較を追加する。
+README: Comparisions with other implementations?
 
-sprintf.js: =?, (), filters
+sprintf.js: Padding character specifier `=?`, Named arguments, filters
