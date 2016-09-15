@@ -26,20 +26,20 @@ var result2 = agh.vsprintf("format string", [args...]);
 
 ## 1 Format specifiers
 
-The first argument of sprintf is a format string which can contain the following form of format specifiers:
+The first argument of sprintf is a format string which may include the following form of format specifiers:
 
 `'%'` *\<pos>***?** *\<flags>***?** *\<width>***?** *\<precision>***?** *\<type>***?** *\<conv>*
 
- - Conversion specifier *\<conv>* specifies a output format.
- - Width specifier *\<width>* specifies a minimal number of characters output.
- - Precision specifiers *\<precision>* specifies a *precision* of the output.
- - Flags *\<flags>* controls the detailed behavior of padding, prefix, etc.
- - Position parameter *\<pos>* specifies a argument by its index.
- - Size specifier *\<type>* determines the data type of the argument.
+ - The conversion specifier *\<conv>* specifies an output format.
+ - The width specifier *\<width>* specifies a minimal number of characters output.
+ - The precision specifier *\<precision>* specifies a *precision* of the output.
+ - The flags *\<flags>* control the detailed behavior of padding, prefix, etc.
+ - The position parameter *\<pos>* specifies an argument by its index.
+ - The size specifier *\<type>* determines the data type of the argument.
 
 ### 1.1 Conversion specifier *\<conv>*
 
-Conversion specifier determines the interpretation of the argument and the format of the output. 
+A conversion specifier determines the interpretation of an argument and the format of the output.
 
 |Specifier|Standard|Description|
 |:--|:--|:--|
@@ -111,11 +111,11 @@ The precision specifier has the following form:
 |`'.*'`              |ANSI C|The next argument is consumed for the precision.
 |`'.*'` `/\d+/` `'$'`|POSIX |The argument specified with the index is used for the precision.
 
-In the case of the integer converesions (*\<conv>* = d, i, u, o, x, and X), the precision specifies the minimal number of digits with the redundant higher digits filled with zeroes. For example, 1 will be "0001" with the precision of 4. With the precision, the flag "`0`" will be ignored.
+In the case of the integer converesions (*\<conv>* = d, i, u, o, x, and X), the precision specifies the minimal number of digits with redundant higher digits being filled by zeroes. For example, 1 will be "0001" with the precision of 4. With the precision, the flag "`0`" will be ignored.
 
 In the case that *\<conv>* = f, F, e, E, a, and A, the precision specifies the number of digits after the decimal point. In the case that *\<conv>* = g and G, the precision is the number of the significant digits. The default value of the precision for *\<conv>* = f, F, e, E, g, and G is 6. The default value for *\<conv>* = a and A is 13 which is the hexadecimal precision of the double precision floating point numbers.
 
-For the strings *\<conv>* = s and S, the precision specifies the maximal number of the characters to output. The left characters will be discarded.
+For the strings *\<conv>* = s and S, the precision specifies the maximal number of characters to output. Extra characters will be discarded.
 
 ```javascript
 // Examples
@@ -143,7 +143,7 @@ The flag specifier has the following form:
 |`'-'`|ANSI C|The left justification instead of the default of the right justification|
 |`'+'`|ANSI C|The plus sign for positive numbers|
 |`'#'`|ANSI C|For the integer conversions, the prefix representing its base will be added if the value is not zero. The prefixes are "0", "0x", and "0X" for *\<conv>* = o, x, and X, respectively.<br>For the floating point numbers, this flag prevent to omit the decimal point even if the value is an integer. In addition, trailing zeroes will not be omitted for *\<conv>* = g and G.|
-|`' '`|ANSI C|The space in the sign position for the positive numbers. This space is not omitted even if the output width excesses the specified *\<width>*.|
+|`' '`|ANSI C|A space is output at the sign position for positive numbers. This space is not omitted even if the output width excesses the specified *\<width>*.|
 |`'0'`|ANSI C|Use "`0`" instead of "` `" for the left padding. Note that, unlike the spaces, `0`s are inserted after the sign and the prefixes.|
 |`"'"`|SUSv2|The grouping characaters, i.e. commas at every three digits, are inserted in the integral part for *\<conv>* = d, i, f, F, g, and G. Note that, the grouping characters are not inserted for the zero padding specified by the flag "`0`".|
 
@@ -164,7 +164,7 @@ The positional parameter has the following form:
 
 *\<pos>* **:=** `/\d+\$/`
 
-This selects the argument contaning output data by its index. The argument just after the format string corresponds to the index 1.
+It selects an argument to output by its index. The argument just after the format string corresponds to the index 1.
 
 ```javascript
 // Example
