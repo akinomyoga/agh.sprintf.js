@@ -1,6 +1,6 @@
 {
   "name": "agh.sprintf",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "C, POSIX compatible sprintf written in JavaScript",
   "main": "agh.sprintf.js",
   "scripts": {

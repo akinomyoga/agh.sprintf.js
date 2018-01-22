@@ -238,115 +238,115 @@
 //   <左余白> <符号> <ゼロ> <中身> <右余白>
 //   計算の順番としては、<符号>+<中身> のペアを決定してから、<ゼロ> または <余白> を付加すれば良い。
 
-(function(window){
-  function repeatString(s,len){
-    if(len<=0)return "";
-    var ret="";
-    do if(len&1)ret+=s;while((len>>=1)>=1&&(s+=s));
+(function(window) {
+  function repeatString(s, len) {
+    if (len <= 0) return "";
+    var ret = "";
+    do if (len & 1) ret += s; while ((len >>= 1) >= 1 && (s += s));
     return ret;
   }
 
   //---------------------------------------------------------------------------
   // サイズ指定子達
 
-  var INT32_MOD=0x100000000;
-  var INT32_MIN=-0x80000000;
-  var INT32_MAX=+0x7FFFFFFF;
-  var INT64_MOD=INT32_MOD*INT32_MOD;
-  var INT64_MIN=-INT64_MOD/2.0;
-  var INT64_MAX=-INT64_MIN-1;
+  var INT32_MOD = 0x100000000;
+  var INT32_MIN = -0x80000000;
+  var INT32_MAX = +0x7FFFFFFF;
+  var INT64_MOD = INT32_MOD * INT32_MOD;
+  var INT64_MIN = -INT64_MOD / 2.0;
+  var INT64_MAX = -INT64_MIN - 1;
 
-  function roundTowardZero(value){
-    return value<0?Math.ceil(value):Math.floor(value);
+  function roundTowardZero(value) {
+    return value < 0 ? Math.ceil(value) : Math.floor(value);
   }
 
-  function getIntegerValue(value,type){
+  function getIntegerValue(value, type) {
     // 整数は内部的には double で表現されている。
     // ビット演算は 32bit 符号付整数として実行される。
-    value=roundTowardZero(value);
-    switch(type){
+    value = roundTowardZero(value);
+    switch (type) {
     case 'hh': // C99 char (8bit signed)
-      value&=0xFF;
-      return value>=0x80  ?value-0x100  :value;
+      value &= 0xFF;
+      return value >= 0x80 ? value - 0x100 : value;
     case 'h': // short (16bit signed)
-      value&=0xFFFF;
-      return value>=0x8000?value-0x10000:value;
+      value &= 0xFFFF;
+      return value >= 0x8000 ? value - 0x10000 : value;
     case 'l':   // C89  long (32bit signed) (ビット演算を使うと変になる)
     case 'z':   // C99  size_t
     case 't':   // C99  ptrdiff_t
     case 'I32': // MSVC __int32
     case 'I':   // MSVC ptrdiff_t/size_t
-      value%=INT32_MOD;
-      if(value<INT32_MIN)
-        value+=INT32_MOD;
-      else if(value>INT32_MAX)
-        value-=INT32_MOD;
+      value %= INT32_MOD;
+      if (value < INT32_MIN)
+        value += INT32_MOD;
+      else if (value > INT32_MAX)
+        value -= INT32_MOD;
       return value;
     case 'll':  // C99 long long (64bit signed)
     case 'I64': // MSVC __int32
     case 'q':   // BSD  quad word
     case 'L':   // agh exntesion
-      value%=INT64_MOD;
-      if(value<INT64_MIN)
-        value+=INT64_MOD;
-      else if(value>INT64_MAX)
-        value-=INT64_MOD;
+      value %= INT64_MOD;
+      if (value < INT64_MIN)
+        value += INT64_MOD;
+      else if (value > INT64_MAX)
+        value -= INT64_MOD;
       return value;
-    case 'j':default: // 変換無し (double の整数)
+    case 'j': default: // 変換無し (double の整数)
       return value;
     }
   }
 
-  function getUnsignedValue(value,type){
+  function getUnsignedValue(value, type) {
     // 整数は内部的には double で表現されている。
     // ビット演算は 32bit 符号付整数として実行される。
-    value=roundTowardZero(value);
-    switch(type){
+    value = roundTowardZero(value);
+    switch (type) {
     case 'hh': // 8bit unsigned
-      value&=0xFF;
+      value &= 0xFF;
       return value;
     case 'h': // 16bit unsigned
-      value&=0xFFFF;
+      value &= 0xFFFF;
       return value;
     case 'l':   // C89  long (32bit unsigned) (ビット演算を使うと変になる)
     case 'z':   // C99  size_t
     case 't':   // C99  ptrdiff_t
     case 'I32': // MSVC __int32
     case 'I':   // MSVC ptrdiff_t/size_t
-      value%=INT32_MOD;
-      return value<0?value+INT32_MOD:value;
+      value %= INT32_MOD;
+      return value < 0 ? value + INT32_MOD : value;
     case 'll':  // C99 long long (64bit unsigned)
     case 'I64': // MSVC __int32
     case 'q':   // BSD  quad word
     case 'L':   // agh exntesion
-      value%=INT64_MOD;
-      return value<0?value+INT64_MOD:value;
-    case 'j':default: // double の整数の 2 の補数??
-      if(value<0){
+      value %= INT64_MOD;
+      return value < 0 ? value + INT64_MOD : value;
+    case 'j': default: // double の整数の 2 の補数??
+      if (value < 0) {
         // 例 -0x80 ~ -0x41 → 7 ~ 6+epsilon → nbits = 8, mod = 0x100
-        var nbits=value<INT32_MIN?1+Math.ceil(Math.LOG2E*Math.log(-value)):32;
-        var mod=Math.pow(2,nbits);
-        value+=mod;
+        var nbits = value < INT32_MIN ? 1 + Math.ceil(Math.LOG2E * Math.log(-value)) : 32;
+        var mod = Math.pow(2, nbits);
+        value += mod;
       }
       return value;
     }
   }
 
-  function getFloatValue(value,type){
-    if(type==='h'||type==='hh'){
-      var sgn=value<0?-1:1;
-      var exp=Math.floor(Math.LOG2E*Math.log(sgn*value));
-      var scale=Math.pow(2,exp-23); // float (exp = 0) は小数点以下2進23桁まで有効
-      value=(0|value/scale)*scale;
+  function getFloatValue(value, type) {
+    if (type === 'h' || type === 'hh') {
+      var sgn = value < 0 ? -1 : 1;
+      var exp = Math.floor(Math.LOG2E * Math.log(sgn * value));
+      var scale = Math.pow(2, exp - 23); // float (exp = 0) は小数点以下2進23桁まで有効
+      value = (0 | value / scale) * scale;
     }
 
     return value;
   }
 
-  function getCharValue(value,type){
-    value|=0;
-    if(type==='h'||type==='hh'){
-      value&=0xFF;
+  function getCharValue(value, type) {
+    value |= 0;
+    if (type === 'h' || type === 'hh') {
+      value &= 0xFF;
     }
     return value;
   }
@@ -363,42 +363,42 @@
    * - 'x', 'X' 16進符号無し整数
    */
 
-  var groupIntegerRegs=[
+  var groupIntegerRegs = [
     /(...)(?!$)/g,
     /(^.|...)(?!$)/g,
     /(^..|...)(?!$)/g
   ];
-  function groupInteger(text,flag){
-    if(text.length<4||!/\'/.test(flag))
+  function groupInteger(text, flag) {
+    if (text.length < 4 || !/\'/.test(flag))
       return text;
     else
-      return text.replace(groupIntegerRegs[text.length%3],"$1,");
+      return text.replace(groupIntegerRegs[text.length % 3], "$1,");
   }
 
-  var xdigits="0123456789abcdef";
-  function convertInteger(value,flag,precision,base){
-    var out='';
-    do{
-      out=xdigits.charAt(value%base)+out;
-      value=Math.floor(value/base);
-    }while(value>0);
+  var xdigits = "0123456789abcdef";
+  function convertInteger(value, flag, precision, base) {
+    var out = '';
+    do {
+      out = xdigits.charAt(value % base) + out;
+      value = Math.floor(value / base);
+    } while (value > 0);
 
-    if(precision!=null)
-      out=repeatString('0',precision-out.length)+out;
+    if (precision != null)
+      out = repeatString('0', precision - out.length) + out;
 
     return out;
   }
-  function convertDecimal(value,flag,precision,type){
-    return groupInteger(convertInteger(value,flag,precision,10),flag);
+  function convertDecimal(value, flag, precision, type) {
+    return groupInteger(convertInteger(value, flag, precision, 10), flag);
   }
-  function convertOctal(value,flag,precision,type){
-    return convertInteger(value,flag,precision,8);
+  function convertOctal(value, flag, precision, type) {
+    return convertInteger(value, flag, precision, 8);
   }
-  function convertLowerHex(value,flag,precision,type){
-    return convertInteger(value,flag,precision,16);
+  function convertLowerHex(value, flag, precision, type) {
+    return convertInteger(value, flag, precision, 16);
   }
-  function convertUpperHex(value,flag,precision,type){
-    return convertInteger(value,flag,precision,16).toUpperCase();
+  function convertUpperHex(value, flag, precision, type) {
+    return convertInteger(value, flag, precision, 16).toUpperCase();
   }
 
   /**
@@ -408,198 +408,198 @@
    * - 'a', 'A' 浮動小数点数16進表現 (lower/upper case, 1p+5/1P+5 など)
    */
 
-  var logTable=[];
-  logTable[ 2]=Math.LOG2E;
-  logTable[10]=Math.LOG10E;
-  logTable[16]=Math.LOG2E/4;
-  function frexp(value,base){
-    if(value===0)return [0,0];
+  var logTable = [];
+  logTable[ 2] = Math.LOG2E;
+  logTable[10] = Math.LOG10E;
+  logTable[16] = Math.LOG2E / 4;
+  function frexp(value, base) {
+    if (value === 0) return [0, 0];
 
-    var exp=1+Math.floor(logTable[base]*Math.log(value));
-    value=value*Math.pow(base,-exp);
+    var exp = 1 + Math.floor(logTable[base] * Math.log(value));
+    value = value * Math.pow(base, -exp);
 
     // 際どいずれが起きるので補正
-    if(value*base<1){
-      value*=base;
+    if (value * base < 1) {
+      value *= base;
       exp--;
-    }else if(value>=1){
-      value/=base;
+    } else if (value >= 1) {
+      value /= base;
       exp++;
     }
 
-    return [value,exp];
+    return [value, exp];
   }
 
-  var regCarryReach=[]; // 末尾の 9 の並び, 繰上到達距離測定用
-  regCarryReach[10]=/9*$/;
-  regCarryReach[16]=/f*$/;
-  function generateFloatingSequence(value,precision,base){
+  var regCarryReach = []; // 末尾の 9 の並び, 繰上到達距離測定用
+  regCarryReach[10] = /9*$/;
+  regCarryReach[16] = /f*$/;
+  function generateFloatingSequence(value, precision, base) {
     // value [0, 1) の数値
-    var seq='';
-    while(--precision>0)
-      seq+=xdigits.charAt(0|(value=value*base%base));
+    var seq = '';
+    while (--precision > 0)
+      seq += xdigits.charAt(0 | (value = value * base % base));
 
     // 最後の数字は四捨五入
     // (0-10 の整数になるので繰り上がり処理が必要)
-    var last=Math.round(value*base%base);
-    if(last==base){
-      var cd=regCarryReach[base].exec(seq)[0].length;
-      if(cd<seq.length){
+    var last = Math.round(value * base % base);
+    if (last == base) {
+      var cd = regCarryReach[base].exec(seq)[0].length;
+      if (cd < seq.length) {
         // 繰り上がり
-        var iinc=seq.length-cd-1;
-        seq=seq.slice(0,iinc)+xdigits.charAt(1+(0|seq.charAt(iinc)))+repeatString('0',cd+1);
-      }else{
-        // 全て 9 の時 → exp更新, seq=1000...
-        seq='1'+repeatString('0',cd+1);
+        var iinc = seq.length - cd - 1;
+        seq = seq.slice(0, iinc) + xdigits.charAt(1 + (0 | seq.charAt(iinc))) + repeatString('0', cd + 1);
+      } else {
+        // 全て 9 の時 → exp更新, seq = 1000...
+        seq = '1' + repeatString('0', cd + 1);
       }
-    }else{
-      seq+=xdigits.charAt(last);
+    } else {
+      seq += xdigits.charAt(last);
     }
     return seq;
   }
 
-  function omitTrailingZero(text,flag){
-    return text.replace(/(\.[\da-f]*?)0+$/,function($0,$1){
-      if($1&&$1.length>1)
+  function omitTrailingZero(text, flag) {
+    return text.replace(/(\.[\da-f]*?)0+$/, function($0, $1) {
+      if ($1 && $1.length > 1)
         return $1;
       else
-        return /#/.test(flag)?'.':'';
+        return /#/.test(flag) ? '.' : '';
     });
   }
-  function omitTrailingZeroE(text,flag){
-    return text.replace(/(\.\d*?)0+e/,function($0,$1){
-      if($1&&$1.length>1)
-        return $1+'e';
+  function omitTrailingZeroE(text, flag) {
+    return text.replace(/(\.\d*?)0+e/, function($0, $1) {
+      if ($1 && $1.length > 1)
+        return $1 + 'e';
       else
-        return /#/.test(flag)?'.e':'e';
+        return /#/.test(flag) ? '.e' : 'e';
     });
   }
 
-  function convertScientific(value,flag,precision,type){ // conv = e E
-    if(isNaN(value))
+  function convertScientific(value, flag, precision, type) { // conv = e E
+    if (isNaN(value))
       return 'nan';
-    else if(!isFinite(value))
+    else if (!isFinite(value))
       return 'inf';
 
-    if(precision==null)precision=6;
+    if (precision == null) precision = 6;
 
-    var buff=frexp(value,10);
-    var fr=buff[0],exp=buff[1]-1;
-    var man=generateFloatingSequence(fr,1+precision,10);
-    if(man.length>precision+1){
+    var buff = frexp(value, 10);
+    var fr = buff[0], exp = buff[1] - 1;
+    var man = generateFloatingSequence(fr, 1 + precision, 10);
+    if (man.length > precision + 1) {
       // 99..99 から 100..00 に繰り上がった時
-      man=man.slice(0,-1);
+      man = man.slice(0, -1);
       exp++;
     }
 
-    if(precision>0||/#/.test(flag))
-      man=man.slice(0,1)+'.'+man.slice(1);
+    if (precision > 0 || /#/.test(flag))
+      man = man.slice(0, 1) + '.' + man.slice(1);
 
-    if(exp<0)
-      exp='e-'+(1000-exp).toString().slice(1);
+    if (exp < 0)
+      exp = 'e-' + (1000 - exp).toString().slice(1);
     else
-      exp='e+'+(1000+exp).toString().slice(1);
-    return man+exp;
+      exp = 'e+' + (1000 + exp).toString().slice(1);
+    return man + exp;
   }
-  function convertScientificHex(value,flag,precision,type){ // conv = a A
-    if(isNaN(value))
+  function convertScientificHex(value, flag, precision, type) { // conv = a A
+    if (isNaN(value))
       return 'nan';
-    else if(!isFinite(value))
+    else if (!isFinite(value))
       return 'inf';
 
-    if(precision==null)
-      precision=type==='h'||type==='hh'?6:13;
+    if (precision == null)
+      precision = type === 'h' || type === 'hh' ? 6 : 13;
 
-    var buff=frexp(value,2);
-    var fr=buff[0],exp=buff[1]-1;
-    var man=generateFloatingSequence((1/8)*fr,precision+1,16);
-    if(man.length>precision+1){
-      man=man.slice(0,-1);
+    var buff = frexp(value, 2);
+    var fr = buff[0], exp = buff[1] - 1;
+    var man = generateFloatingSequence((1 / 8) * fr, precision + 1, 16);
+    if (man.length > precision + 1) {
+      man = man.slice(0, -1);
       exp++;
     }
 
-    if(man.length>1||/#/.test(flag))
-      man=man.slice(0,1)+'.'+man.slice(1);
+    if (man.length > 1 || /#/.test(flag))
+      man = man.slice(0, 1) + '.' + man.slice(1);
 
-    man=omitTrailingZero(man,flag);
+    man = omitTrailingZero(man, flag);
 
-    if(exp<0)
-      exp='p-'+(1000-exp).toString().slice(1);
+    if (exp < 0)
+      exp = 'p-' + (1000 - exp).toString().slice(1);
     else
-      exp='p+'+(1000+exp).toString().slice(1);
-    return man+exp;
+      exp = 'p+' + (1000 + exp).toString().slice(1);
+    return man + exp;
   }
-  function convertFloating(value,flag,precision,type){ // conv = f F
-    if(isNaN(value))
+  function convertFloating(value, flag, precision, type) { // conv = f F
+    if (isNaN(value))
       return 'nan';
-    else if(!isFinite(value))
+    else if (!isFinite(value))
       return 'inf';
 
-    if(precision==null)precision=6;
+    if (precision == null) precision = 6;
 
-    if(value>=1.0){
-      var buff=frexp(value,10);
-      var fr=buff[0],exp=buff[1];
-    }else{
-      var fr=value/10,exp=1;
+    if (value >= 1.0) {
+      var buff = frexp(value, 10);
+      var fr = buff[0], exp = buff[1];
+    } else {
+      var fr = value / 10, exp = 1;
     }
 
-    var man=generateFloatingSequence(fr,exp+precision,10);
-    if(precision>0||/#/.test(flag)){
-      var point=man.length-precision;
-      man=groupInteger(man.slice(0,point),flag)+'.'+man.slice(point);
-    }else
-      man=groupInteger(man,flag);
+    var man = generateFloatingSequence(fr, exp + precision, 10);
+    if (precision > 0 || /#/.test(flag)) {
+      var point = man.length - precision;
+      man = groupInteger(man.slice(0, point), flag) + '.' + man.slice(point);
+    } else
+      man = groupInteger(man, flag);
 
     return man;
   }
-  function convertCompact(value,flag,precision,type){ // conv = g G
-    if(isNaN(value))
+  function convertCompact(value, flag, precision, type) { // conv = g G
+    if (isNaN(value))
       return 'nan';
-    else if(!isFinite(value))
+    else if (!isFinite(value))
       return 'inf';
 
-    if(precision==null)
-      precision=6;
-    else if(precision<1)
-      precision=1;
+    if (precision == null)
+      precision = 6;
+    else if (precision < 1)
+      precision = 1;
 
-    if(value<1e-4||Math.pow(10,precision)<=value+0.5){
+    if (value < 1e-4 || Math.pow(10, precision) <= value + 0.5) {
       // scientific
-      var result=convertScientific(value,flag,precision-1,type);
-      if(/#/.test(flag))
+      var result = convertScientific(value, flag, precision - 1, type);
+      if (/#/.test(flag))
         return result;
       else
-        return omitTrailingZeroE(result,flag);
-    }else{
+        return omitTrailingZeroE(result, flag);
+    } else {
       // floating point
-      var buff=frexp(value,10);
-      var fr=buff[0],exp=buff[1];
+      var buff = frexp(value, 10);
+      var fr = buff[0], exp = buff[1];
 
-      if(precision<1)precision=1;
-      var man=generateFloatingSequence(fr,precision,10);
-      var point=man.length-(precision-exp); // 小数点挿入位置。末端からの位置が繰り上がり不変。
-      // assert(exp<=precision);
-      // assert(man.length==precision||man.length==precision+1)
-      // assert(point<=man.length);
-      if(point>0){
-        if(point<man.length||/#/.test(flag))
-          man=groupInteger(man.slice(0,point),flag)+'.'+man.slice(point,precision);
-      }else{
-        man='0.'+repeatString('0',-point)+man.slice(0,precision);
+      if (precision < 1) precision = 1;
+      var man = generateFloatingSequence(fr, precision, 10);
+      var point = man.length - (precision - exp); // 小数点挿入位置。末端からの位置が繰り上がり不変。
+      // assert(exp <= precision);
+      // assert(man.length == precision || man.length == precision + 1)
+      // assert(point <= man.length);
+      if (point > 0) {
+        if (point < man.length || /#/.test(flag))
+          man = groupInteger(man.slice(0, point), flag) + '.' + man.slice(point, precision);
+      } else {
+        man = '0.' + repeatString('0', -point) + man.slice(0, precision);
       }
 
-      if(/#/.test(flag))
+      if (/#/.test(flag))
         return man;
       else
-        return omitTrailingZero(man,flag);
+        return omitTrailingZero(man, flag);
     }
   }
 
-  function convertCompactU      (value,flag,precision,type){return convertCompact      (value,flag,precision,type).toUpperCase();}
-  function convertFloatingU     (value,flag,precision,type){return convertFloating     (value,flag,precision,type).toUpperCase();}
-  function convertScientificU   (value,flag,precision,type){return convertScientific   (value,flag,precision,type).toUpperCase();}
-  function convertScientificHexU(value,flag,precision,type){return convertScientificHex(value,flag,precision,type).toUpperCase();}
+  function convertCompactU      (value, flag, precision, type) { return convertCompact      (value, flag, precision, type).toUpperCase(); }
+  function convertFloatingU     (value, flag, precision, type) { return convertFloating     (value, flag, precision, type).toUpperCase(); }
+  function convertScientificU   (value, flag, precision, type) { return convertScientific   (value, flag, precision, type).toUpperCase(); }
+  function convertScientificHexU(value, flag, precision, type) { return convertScientificHex(value, flag, precision, type).toUpperCase(); }
 
   /**
    * - 'c', 'C' 文字
@@ -608,162 +608,162 @@
    * - '%' % を出力
    */
 
-  function convertChar(value,flag,precision,type){
+  function convertChar(value, flag, precision, type) {
     return String.fromCharCode(value);
   }
-  function convertString(value,flag,precision,type){
-    if(value==null)
-      value=value===undefined?'(undefined)':'(null)';
+  function convertString(value, flag, precision, type) {
+    if (value == null)
+      value = value === undefined ? '(undefined)' : '(null)';
     else
-      value=value.toString();
+      value = value.toString();
 
-    if(precision!=null)
-      value=value.slice(0,precision);
+    if (precision != null)
+      value = value.slice(0, precision);
 
     return value;
   }
-  function convertOutputLength(value,flag,precision,type,outputLength){ // conv = n
-    value[0]=getIntegerValue(outputLength,type);
+  function convertOutputLength(value, flag, precision, type, outputLength) { // conv = n
+    value[0] = getIntegerValue(outputLength, type);
     return '';
   }
-  function convertEscaped(value,flag,precision,type){return '%';}
+  function convertEscaped(value, flag, precision, type) { return '%'; }
 
   //---------------------------------------------------------------------------
 
-  function prefixOctal(flag)    {return /#/.test(flag)?'0':'';}
-  function prefixLHex(flag)     {return /#/.test(flag)?'0x':'';}
-  function prefixUHex(flag)     {return /#/.test(flag)?'0X':'';}
-  function prefixFloatLHex(flag){return '0x';}
-  function prefixFloatUHex(flag){return '0X';}
-  function prefixPointerHex(flag){return '0x';}
+  function prefixOctal(flag)      { return /#/.test(flag) ? '0'  : ''; }
+  function prefixLHex(flag)       { return /#/.test(flag) ? '0x' : ''; }
+  function prefixUHex(flag)       { return /#/.test(flag) ? '0X' : ''; }
+  function prefixFloatLHex(flag)  { return '0x'; }
+  function prefixFloatUHex(flag)  { return '0X'; }
+  function prefixPointerHex(flag) { return '0x'; }
 
-  var conversions={
-    d:{getv:getIntegerValue , integral:true , signed:true , prefix:null            , conv:convertDecimal       },
-    i:{getv:getIntegerValue , integral:true , signed:true , prefix:null            , conv:convertDecimal       },
-    u:{getv:getUnsignedValue, integral:true , signed:false, prefix:null            , conv:convertDecimal       },
-    o:{getv:getUnsignedValue, integral:true , signed:false, prefix:prefixOctal     , conv:convertOctal         },
-    x:{getv:getUnsignedValue, integral:true , signed:false, prefix:prefixLHex      , conv:convertLowerHex      },
-    X:{getv:getUnsignedValue, integral:true , signed:false, prefix:prefixUHex      , conv:convertUpperHex      },
-    e:{getv:getFloatValue   , integral:false, signed:true , prefix:null            , conv:convertScientific    },
-    E:{getv:getFloatValue   , integral:false, signed:true , prefix:null            , conv:convertScientificU   },
-    f:{getv:getFloatValue   , integral:false, signed:true , prefix:null            , conv:convertFloating      },
-    F:{getv:getFloatValue   , integral:false, signed:true , prefix:null            , conv:convertFloatingU     },
-    g:{getv:getFloatValue   , integral:false, signed:true , prefix:null            , conv:convertCompact       },
-    G:{getv:getFloatValue   , integral:false, signed:true , prefix:null            , conv:convertCompactU      },
-    a:{getv:getFloatValue   , integral:false, signed:true , prefix:prefixFloatLHex , conv:convertScientificHex },
-    A:{getv:getFloatValue   , integral:false, signed:true , prefix:prefixFloatUHex , conv:convertScientificHexU},
-    c:{getv:getCharValue    , integral:false, signed:false, prefix:null            , conv:convertChar          },
-    C:{getv:getCharValue    , integral:false, signed:false, prefix:null            , conv:convertChar          },
-    s:{getv:null            , integral:false, signed:false, prefix:null            , conv:convertString        },
-    S:{getv:null            , integral:false, signed:false, prefix:null            , conv:convertString        },
-    p:{getv:getUnsignedValue, integral:false, signed:false, prefix:prefixPointerHex, conv:convertUpperHex      },
-    n:{getv:null            , integral:false, signed:false, prefix:null            , conv:convertOutputLength  },
-    '%':{noValue:true       , integral:false, signed:false, prefix:null            , conv:convertEscaped       }
+  var conversions = {
+    d: {getv: getIntegerValue , integral: true , signed: true , prefix: null            , conv: convertDecimal       },
+    i: {getv: getIntegerValue , integral: true , signed: true , prefix: null            , conv: convertDecimal       },
+    u: {getv: getUnsignedValue, integral: true , signed: false, prefix: null            , conv: convertDecimal       },
+    o: {getv: getUnsignedValue, integral: true , signed: false, prefix: prefixOctal     , conv: convertOctal         },
+    x: {getv: getUnsignedValue, integral: true , signed: false, prefix: prefixLHex      , conv: convertLowerHex      },
+    X: {getv: getUnsignedValue, integral: true , signed: false, prefix: prefixUHex      , conv: convertUpperHex      },
+    e: {getv: getFloatValue   , integral: false, signed: true , prefix: null            , conv: convertScientific    },
+    E: {getv: getFloatValue   , integral: false, signed: true , prefix: null            , conv: convertScientificU   },
+    f: {getv: getFloatValue   , integral: false, signed: true , prefix: null            , conv: convertFloating      },
+    F: {getv: getFloatValue   , integral: false, signed: true , prefix: null            , conv: convertFloatingU     },
+    g: {getv: getFloatValue   , integral: false, signed: true , prefix: null            , conv: convertCompact       },
+    G: {getv: getFloatValue   , integral: false, signed: true , prefix: null            , conv: convertCompactU      },
+    a: {getv: getFloatValue   , integral: false, signed: true , prefix: prefixFloatLHex , conv: convertScientificHex },
+    A: {getv: getFloatValue   , integral: false, signed: true , prefix: prefixFloatUHex , conv: convertScientificHexU},
+    c: {getv: getCharValue    , integral: false, signed: false, prefix: null            , conv: convertChar          },
+    C: {getv: getCharValue    , integral: false, signed: false, prefix: null            , conv: convertChar          },
+    s: {getv: null            , integral: false, signed: false, prefix: null            , conv: convertString        },
+    S: {getv: null            , integral: false, signed: false, prefix: null            , conv: convertString        },
+    p: {getv: getUnsignedValue, integral: false, signed: false, prefix: prefixPointerHex, conv: convertUpperHex      },
+    n: {getv: null            , integral: false, signed: false, prefix: null            , conv: convertOutputLength  },
+    '%': {noValue: true       , integral: false, signed: false, prefix: null            , conv: convertEscaped       }
   };
 
-  function printf_impl(fmt){
+  function printf_impl(fmt) {
     // ※arguments の fmt を除いた部分の番号は 1 から始まり、
     //   位置指定子も 1 から始まるので、位置番号はそのまま arguments の添字に指定して良い。
 
-    var args=arguments;
-    var aindex=1;
-    var lastIndex=0;
-    var outputLength=0;
-    var output=fmt.replace(/%(?:(\d+)\$)?([-+ 0#']*)(\d+|\*(?:\d+\$)?)?(\.(?:\d+|\*(?:\d+\$)?)?)?(hh|ll|I(?:32|64)?|[hlLjztqw])?(.|$)/g,function($0,pos,flag,width,precision,type,conv,index){
-      outputLength+=index-lastIndex;
-      lastIndex=index+$0.length;
+    var args = arguments;
+    var aindex = 1;
+    var lastIndex = 0;
+    var outputLength = 0;
+    var output = fmt.replace(/%(?:(\d+)\$)?([-+ 0#']*)(\d+|\*(?:\d+\$)?)?(\.(?:\d+|\*(?:\d+\$)?)?)?(hh|ll|I(?:32|64)?|[hlLjztqw])?(.|$)/g, function($0, pos, flag, width, precision, type, conv, index) {
+      outputLength += index - lastIndex;
+      lastIndex = index + $0.length;
 
-      if((conv=conversions[conv])==null){
-        var ret='(sprintf:error:'+$0+')';
-        outputLength+=ret.length;
+      if ((conv = conversions[conv]) == null) {
+        var ret = '(sprintf:error:' + $0 + ')';
+        outputLength += ret.length;
         return ret;
       }
 
-      pos=
-        (pos==null||pos==="")?null:
-        pos==='*'?0|args[aindex++]:
-        0|pos;
+      pos =
+        (pos == null || pos === "") ? null :
+        pos === '*' ? 0 | args[aindex++] :
+        0 | pos;
 
-      width=
-        (width==null||width==="")?0:
-        width==='*'?0|args[aindex++]:
-        width.charAt(0)==='*'?args[0|width.slice(1,-1)]:
-        0|width;
+      width =
+        (width == null || width === "") ? 0 :
+        width === '*' ? 0 | args[aindex++]:
+        width.charAt(0) === '*' ? args[0 | width.slice(1, -1)] :
+        0 | width;
 
-      precision=
-        (precision==null||precision==="")?null:
-        precision==='.*'?0|args[aindex++]:
-        precision.charAt(1)==='*'?args[0|precision.slice(2,-1)]:
-        0|precision.slice(1);
+      precision =
+        (precision == null || precision === "") ? null:
+        precision === '.*' ? 0 | args[aindex++]:
+        precision.charAt(1) === '*' ? args[0 | precision.slice(2, -1)] :
+        0 | precision.slice(1);
 
-      var value=conv.noValue?null: pos===null?args[aindex++]: args[pos];
-      if(conv.getv)value=conv.getv(value,type);
+      var value = conv.noValue ? null: pos === null ? args[aindex++] : args[pos];
+      if (conv.getv) value = conv.getv(value, type);
 
-      var prefix='';
-      if(conv.signed){
-        if(value<0){
-          prefix='-';
-          value=-value;
-        }else if(/\+/.test(flag))
-          prefix='+';
-        else if(/ /.test(flag))
-          prefix=' ';
+      var prefix = '';
+      if (conv.signed) {
+        if (value < 0) {
+          prefix = '-';
+          value = -value;
+        } else if (/\+/.test(flag))
+          prefix = '+';
+        else if (/ /.test(flag))
+          prefix = ' ';
       }
-      if(conv.prefix&&value!=0)
-        prefix+=conv.prefix(flag);
+      if (conv.prefix && value != 0)
+        prefix += conv.prefix(flag);
 
-      var body=conv.conv(value,flag,precision,type,outputLength);
+      var body = conv.conv(value, flag, precision, type, outputLength);
 
-      var lpad='',zero='',rpad='';
-      width-=prefix.length+body.length;
-      if(width>=1){
-        if(/-/.test(flag)){
+      var lpad = '', zero = '', rpad = '';
+      width -= prefix.length + body.length;
+      if (width >= 1) {
+        if (/-/.test(flag)) {
           // POSIX に従うと - の方が優先
-          rpad=repeatString(' ',width);
-        }else if(/0/.test(flag)&&(!conv.integral||precision==null)){
-          zero=repeatString('0',width);
-        }else
-          lpad=repeatString(' ',width);
+          rpad = repeatString(' ', width);
+        } else if (/0/.test(flag) && (!conv.integral || precision == null)) {
+          zero = repeatString('0', width);
+        } else
+          lpad = repeatString(' ', width);
       }
 
-      var ret=lpad+prefix+zero+body+rpad;
-      outputLength+=ret.length;
+      var ret = lpad + prefix + zero + body + rpad;
+      outputLength += ret.length;
       return ret;
     });
-    outputLength+=fmt.length-lastIndex;
+    outputLength += fmt.length - lastIndex;
 
-    return [outputLength,output];
+    return [outputLength, output];
   }
 
-  function sprintf(){
-    var result=printf_impl.apply(this,arguments);
+  function sprintf() {
+    var result = printf_impl.apply(this, arguments);
     return result[1];
   }
-  function printf(){
-    var result=printf_impl.apply(this,arguments);
-    printh(agh.Text.Escape(result[1],'html'));
+  function printf() {
+    var result = printf_impl.apply(this, arguments);
+    printh(agh.Text.Escape(result[1], 'html'));
     return result[0];
   }
-  function vsprintf(fmt,args){
-    var result=printf_impl.apply(this,[fmt].concat(args));
+  function vsprintf(fmt, args) {
+    var result = printf_impl.apply(this, [fmt].concat(args));
     return result[1];
   }
 
-  var _exports=typeof window.agh!=="undefined"?agh: typeof exports!=="undefined"?exports:window;
-  if(_exports){
-    _exports.sprintf=sprintf;
-    _exports.vsprintf=vsprintf;
+  var _exports = typeof window.agh !== "undefined" ? agh : typeof exports !== "undefined" ? exports : window;
+  if (_exports) {
+    _exports.sprintf = sprintf;
+    _exports.vsprintf = vsprintf;
 
-    if(window.agh&&window.printh)
-      _exports.printf=function(){
-        var result=printf_impl.apply(this,arguments);
-        printh(agh.Text.Escape(result[1],'html'));
+    if (window.agh && window.printh)
+      _exports.printf = function() {
+        var result = printf_impl.apply(this, arguments);
+        printh(agh.Text.Escape(result[1], 'html'));
         return result[0];
       };
 
-    if(window.process&&window.process.stdout)
-      _exports.printf=function(){
-        var result=printf_impl.apply(this,arguments);
+    if (window.process && window.process.stdout)
+      _exports.printf = function() {
+        var result = printf_impl.apply(this, arguments);
         process.stdout.write(result[1]);
         return result[0];
       };
@@ -772,33 +772,33 @@
 
 // test
 //
-// printf("%2$d行目のコマンド %1$sは不正です","hoge",20);
-// printf("%d(1234) %o(2322) %x(4d2)\n",1234,1234,1234);
-// printf("%s(abc) %c(x)\n","abc",'x'.charCodeAt(0));
-// printf("%*d(   10)",5,10);
-// printf("%.*s(3)",3,"abcdef");
-// printf("%2d( 3) %02d(03)",3,3);
-// printf("%1$d:%2$.*3$d:%4$.*3$d(15:035:045)\n",15,35,3,45);
+// printf("%2$d行目のコマンド %1$sは不正です", "hoge", 20);
+// printf("%d(1234) %o(2322) %x(4d2)\n", 1234, 1234, 1234);
+// printf("%s(abc) %c(x)\n", "abc", 'x'.charCodeAt(0));
+// printf("%*d(   10)", 5, 10);
+// printf("%.*s(3)", 3, "abcdef");
+// printf("%2d( 3) %02d(03)", 3, 3);
+// printf("%1$d:%2$.*3$d:%4$.*3$d(15:035:045)\n", 15, 35, 3, 45);
 //
-// printf("%%d: [%+10d][%+ 10d][% +10d][%d]",10,10,10,1e10);
-// printf("%%u: [%u][%u][%+u][% u][%-u][%+10u][%-10u]",-1,10,10,10,10,10,10);
-// printf("%%x,%%u: %x %o",-1,-1);
-// printf("%%a: %a %a %a %a %a %a %a %a %a",0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9);
-// printf("%%A: %A %.3A %#.3A",1e10,1e10,1e10);
-// printf("%%A: %A %A %A %A",4096,2048,1024,512);
+// printf("%%d: [%+10d][%+ 10d][% +10d][%d]", 10, 10, 10, 1e10);
+// printf("%%u: [%u][%u][%+u][% u][%-u][%+10u][%-10u]", -1, 10, 10, 10, 10, 10, 10);
+// printf("%%x,%%u: %x %o", -1, -1);
+// printf("%%a: %a %a %a %a %a %a %a %a %a", 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9);
+// printf("%%A: %A %.3A %#.3A", 1e10, 1e10, 1e10);
+// printf("%%A: %A %A %A %A", 4096, 2048, 1024, 512);
 //
-// printf("%%e: %#.3e %#.3e %#.3e",1e1000,1e100,1e10);
-// printf("%%e: %#.3e %#.6e %#.10e %#.20e\n",1.234,1.234,1.234,1.234);
-// printf("%%e: %#.1e %#.5e %#.10e %#.100e",9.999,9.999,9.999,9.999);
-// printf("%%f: %f %#g %#f %#.g %f %'f",1,1,1,1,1e100,1e100);
-// printf("%%g: %.15g %.15g %#.15g",1,1.2,1.2);
-// printf("%%g: %g %.g %#g %#.g",15,15,15,15);
-// printf("%%g: %g %g %g %g %g",1e-1,1e-3,1e-4,1e-5,9e-5,9e-4,1e10);
-// printf("%%#g: %#g %#g %#g %#2g %#6g",0.1,1e-5,1e-4,1e-4,1e-4);
-// printf("%%#.g: %#.2g %#.2g",1e-4,1e-5);
-// printf("%%.g: %.g %.g %.g; %.1g %.1g %.1g; %.2g %.3g",0.1,0.999,9.999,9,9.9,9.999,9.999,9.999)
+// printf("%%e: %#.3e %#.3e %#.3e", 1e1000, 1e100, 1e10);
+// printf("%%e: %#.3e %#.6e %#.10e %#.20e\n", 1.234, 1.234, 1.234, 1.234);
+// printf("%%e: %#.1e %#.5e %#.10e %#.100e", 9.999, 9.999, 9.999, 9.999);
+// printf("%%f: %f %#g %#f %#.g %f %'f", 1, 1, 1, 1, 1e100, 1e100);
+// printf("%%g: %.15g %.15g %#.15g", 1, 1.2, 1.2);
+// printf("%%g: %g %.g %#g %#.g", 15, 15, 15, 15);
+// printf("%%g: %g %g %g %g %g", 1e-1, 1e-3, 1e-4, 1e-5, 9e-5, 9e-4, 1e10);
+// printf("%%#g: %#g %#g %#g %#2g %#6g", 0.1, 1e-5, 1e-4, 1e-4, 1e-4);
+// printf("%%#.g: %#.2g %#.2g", 1e-4, 1e-5);
+// printf("%%.g: %.g %.g %.g; %.1g %.1g %.1g; %.2g %.3g", 0.1, 0.999, 9.999, 9, 9.9, 9.999, 9.999, 9.999)
 //
-// printf("%%c: [%c][%c][%c]\n",1e100,65,8);
-// printf("%05s %05s\n",123,"aaa");
-// printf("%%p: %p",512);
-// printf("pi: [%1$a][%1$g][%1$'20.9g][%1$020.9g][%1$'020.9g][%2$'020.9g]",Math.PI,Math.PI*1e3);
+// printf("%%c: [%c][%c][%c]\n", 1e100, 65, 8);
+// printf("%05s %05s\n", 123, "aaa");
+// printf("%%p: %p", 512);
+// printf("pi: [%1$a][%1$g][%1$'20.9g][%1$020.9g][%1$'020.9g][%2$'020.9g]", Math.PI, Math.PI * 1e3);
