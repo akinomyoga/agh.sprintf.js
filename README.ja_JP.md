@@ -11,17 +11,34 @@ License: MIT License にします
 ```html
 <script type="text/javascript" charset="utf-8" src="agh.sprintf.js"></script>
 <script type="text/javascript">
-var result1 = sprintf("書式指定文字列", args...);
-var result2 = vsprintf("書式指定文字列", [args...]);
+var result1 = sprintf("pi = %-*.*g /* this is an example */", 30, 20, Math.PI);
+var result2 = vsprintf("pi = %-*.*g /* this is an example */", [30, 20, Math.PI]);
 </script>
 ```
 
-**node.js**
+**Node**
+
+```sh
+$ npm install agh.sprintf
+```
+
+```javascript
+var agh = require('agh.sprintf');
+console.log(agh.sprintf("pi = %-*.*g /* this is an example */", 30, 20, Math.PI));
+console.log(agh.vsprintf("pi = %-*.*g /* this is an example */", [30, 20, Math.PI]));
+```
+
+**Node (without npm)**
+
+```sh
+$ git clone https://github.com/akinomyoga/agh.sprintf.js
+$ cd agh.sprintf.js
+```
 
 ```javascript
 var agh = require('./agh.sprintf.js');
-var result1 = agh.sprintf("書式指定文字列", args...);
-var result2 = agh.vsprintf("書式指定文字列", [args...]);
+console.log(agh.sprintf("pi = %-*.*g /* this is an example */", 30, 20, Math.PI));
+console.log(agh.vsprintf("pi = %-*.*g /* this is an example */", [30, 20, Math.PI]));
 ```
 
 ## 1 書式指定
