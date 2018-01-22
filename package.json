@@ -1,6 +1,6 @@
 {
   "name": "agh.sprintf",
-  "version": "1.0.0",
+  "version": "0.0.2",
   "description": "C, POSIX compatible sprintf written in JavaScript",
   "main": "agh.sprintf.js",
   "scripts": {
@@ -13,7 +13,7 @@
   "keywords": [
     "sprintf"
   ],
-  "author": "akinomyoga",
+  "author": "Koichi Murase <myoga.murase@gmail.com> (https://github.com/akinomyoga)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/akinomyoga/agh.sprintf.js/issues"
