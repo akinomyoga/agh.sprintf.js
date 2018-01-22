@@ -23,7 +23,7 @@ $ npm install agh.sprintf
 ```
 
 ```javascript
-var agh = require('agh.sprintf');
+const agh = require('agh.sprintf');
 console.log(agh.sprintf("pi = %-*.*g /* this is an example */", 30, 20, Math.PI));
 console.log(agh.vsprintf("pi = %-*.*g /* this is an example */", [30, 20, Math.PI]));
 ```
@@ -36,7 +36,7 @@ $ cd agh.sprintf.js
 ```
 
 ```javascript
-var agh = require('./agh.sprintf.js');
+const agh = require('./agh.sprintf.js');
 console.log(agh.sprintf("pi = %-*.*g /* this is an example */", 30, 20, Math.PI));
 console.log(agh.vsprintf("pi = %-*.*g /* this is an example */", [30, 20, Math.PI]));
 ```
