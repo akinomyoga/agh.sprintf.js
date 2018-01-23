@@ -78,22 +78,22 @@ console.log(agh.vsprintf("pi = %-*.*g /* this is an example */", [30, 20, Math.P
 
 ```javascript
 // 例
-sprintf("%d", 12345); // "12345"
-sprintf("%o", 12345); // "30071"
-sprintf("%u", -12345); // "4294954951"
-sprintf("%x", 54321); // "d431"
-sprintf("%X", 54321); // "D431"
-sprintf("%f", Math.PI); // "3.141593"
-sprintf("%e", Math.PI); // "3.141593e+000"
-sprintf("%g", Math.PI); // "3.14159"
-sprintf("%a", Math.PI); // "0x1.921fb54442d18p+001"
-sprintf("%f, %F", Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY); // "inf, INF"
-sprintf("%c, %C", 12354, 12354); // "あ, あ"
-sprintf("%s, %S", 12354, 12354); // "12354, 12354"
-sprintf("%d", 12345); // "12345"
-sprintf("%p", 12345); // "3039"
-sprintf("%d%n", 12345, a = []); // "12345", a == [5]
-sprintf("%%"); // "%"
+agh.sprintf("%d", 12345); // "12345"
+agh.sprintf("%o", 12345); // "30071"
+agh.sprintf("%u", -12345); // "4294954951"
+agh.sprintf("%x", 54321); // "d431"
+agh.sprintf("%X", 54321); // "D431"
+agh.sprintf("%f", Math.PI); // "3.141593"
+agh.sprintf("%e", Math.PI); // "3.141593e+000"
+agh.sprintf("%g", Math.PI); // "3.14159"
+agh.sprintf("%a", Math.PI); // "0x1.921fb54442d18p+001"
+agh.sprintf("%f, %F", Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY); // "inf, INF"
+agh.sprintf("%c, %C", 12354, 12354); // "あ, あ"
+agh.sprintf("%s, %S", 12354, 12354); // "12354, 12354"
+agh.sprintf("%d", 12345); // "12345"
+agh.sprintf("%p", 12345); // "3039"
+agh.sprintf("%d%n", 12345, a = []); // "12345", a == [5]
+agh.sprintf("%%"); // "%"
 ```
 
 ### 1.2 幅指定子 *\<width>*
@@ -110,10 +110,10 @@ sprintf("%%"); // "%"
 
 ```javascript
 // 例
-sprintf("[%1d]", 12345); // "[12345]"
-sprintf("[%8d]", 12345); // "[   12345]" 
-sprintf("[%*d]", 6, 12345); // "[ 12345]"
-sprintf("[%*2$d]", 12345, 7); // "[  12345]"
+agh.sprintf("[%1d]", 12345); // "[12345]"
+agh.sprintf("[%8d]", 12345); // "[   12345]" 
+agh.sprintf("[%*d]", 6, 12345); // "[ 12345]"
+agh.sprintf("[%*2$d]", 12345, 7); // "[  12345]"
 ```
 
 ### 1.3 精度指定子 *\<precision>*
@@ -140,17 +140,17 @@ sprintf("[%*2$d]", 12345, 7); // "[  12345]"
 
 ```javascript
 // 例
-sprintf("%.1d", 12345); // "12345"
-sprintf("%.8d", 12345); // "00012345" 
-sprintf("%.*d", 6, 12345); // "012345"
-sprintf("%.*2$d", 12345, 7); // "0012345"
-sprintf("%.1f", Math.PI); // "3.1"
-sprintf("%.10f", Math.PI); // "3.1415926536"
-sprintf("%.50f", Math.PI); // "3.14159265358979311599796346854418516159057617187500"
-sprintf("%.1g", Math.PI); // "3"
-sprintf("%.10g", Math.PI); // "3.141592654"
-sprintf("%.1s", "12345"); // "1"
-sprintf("%.10s", "12345"); // "12345"
+agh.sprintf("%.1d", 12345); // "12345"
+agh.sprintf("%.8d", 12345); // "00012345" 
+agh.sprintf("%.*d", 6, 12345); // "012345"
+agh.sprintf("%.*2$d", 12345, 7); // "0012345"
+agh.sprintf("%.1f", Math.PI); // "3.1"
+agh.sprintf("%.10f", Math.PI); // "3.1415926536"
+agh.sprintf("%.50f", Math.PI); // "3.14159265358979311599796346854418516159057617187500"
+agh.sprintf("%.1g", Math.PI); // "3"
+agh.sprintf("%.10g", Math.PI); // "3.141592654"
+agh.sprintf("%.1s", "12345"); // "1"
+agh.sprintf("%.10s", "12345"); // "12345"
 ```
 
 ### 1.4 フラグ *\<flags>*
@@ -170,13 +170,13 @@ sprintf("%.10s", "12345"); // "12345"
 
 ```javascript
 // 例
-sprintf("[%3d][%-3d]", 1, 1); // "[  1][1  ]"
-sprintf("%d, %+d", 1, 1); // "1, +1"
-sprintf("%o, %#o, %#o", 1, 1, 0); // "1, 01, 0"
-sprintf("%x, %#x, %#x", 1, 1, 0); // "1, 0x1, 0"
-sprintf("[%d][% d]", 1, 1); // "[1][ 1]"
-sprintf("[%4d][%04d]", 1, 1); // "[   1][0001]"
-sprintf("%d, %'d", 1234567, 1234567); // "1234567, 1,234,567"
+agh.sprintf("[%3d][%-3d]", 1, 1); // "[  1][1  ]"
+agh.sprintf("%d, %+d", 1, 1); // "1, +1"
+agh.sprintf("%o, %#o, %#o", 1, 1, 0); // "1, 01, 0"
+agh.sprintf("%x, %#x, %#x", 1, 1, 0); // "1, 0x1, 0"
+agh.sprintf("[%d][% d]", 1, 1); // "[1][ 1]"
+agh.sprintf("[%4d][%04d]", 1, 1); // "[   1][0001]"
+agh.sprintf("%d, %'d", 1234567, 1234567); // "1234567, 1,234,567"
 ```
 
 ### 1.5 位置指定子 *\<pos>*
@@ -189,7 +189,7 @@ sprintf("%d, %'d", 1234567, 1234567); // "1234567, 1,234,567"
 
 ```javascript
 // 例
-sprintf("%3$d %2$d %1$d %2$d %3$d", 111, 222, 333); // "333 222 111 222 333"
+agh.sprintf("%3$d %2$d %1$d %2$d %3$d", 111, 222, 333); // "333 222 111 222 333"
 ```
 
 ### 1.6 サイズ指定子 *\<type>*
@@ -220,9 +220,9 @@ sprintf("%3$d %2$d %1$d %2$d %3$d", 111, 222, 333); // "333 222 111 222 333"
 
 ```javascript
 // 例
-sprintf("%x", 123456789); // "75bcd15"
-sprintf("%hx", 123456789); // "cd15"
-sprintf("%hhx", 123456789); // "15"
+agh.sprintf("%x", 123456789); // "75bcd15"
+agh.sprintf("%hx", 123456789); // "cd15"
+agh.sprintf("%hhx", 123456789); // "15"
 ```
 
 浮動小数点 (*\<conv>* = f, F, e, E, g, G, a, A) の時
@@ -242,8 +242,8 @@ sprintf("%hhx", 123456789); // "15"
 
 ```javascript
 // 例
-sprintf("%.15g", Math.PI);  // "3.14159265358979"
-sprintf("%.15hg", Math.PI); // "3.14159250259399"
+agh.sprintf("%.15g", Math.PI);  // "3.14159265358979"
+agh.sprintf("%.15hg", Math.PI); // "3.14159250259399"
 ```
 
 文字・文字列 (*\<conv>* = c, C, s, S) の時
@@ -258,8 +258,8 @@ sprintf("%.15hg", Math.PI); // "3.14159250259399"
 
 ```javascript
 // 例
-sprintf("%c", 12354); // "あ"
-sprintf("%hc", 12354); // "B"
+agh.sprintf("%c", 12354); // "あ"
+agh.sprintf("%hc", 12354); // "B"
 ```
 
 ## 2 (ToDo)
