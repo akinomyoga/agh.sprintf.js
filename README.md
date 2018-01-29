@@ -66,14 +66,14 @@ A conversion specifier determines the interpretation of an argument and the form
 |`'x', 'X'`|ANSI C|hexadecimal unsigned number. lower/upper case corresponds to, e.g., 0xa/0XA.
 |`'f', 'F'`|ANSI C|floating point numbers. lower/upper case corresponds to, e.g., inf/INF.
 |`'e', 'E'`|ANSI C|floating point numbers by the scientific representation. lower/upper case corresponds to, e.g., 1e+5/1E+5.
-|`'g', 'G'`|ANSI C|floating point numbers with the specified presition.
+|`'g', 'G'`|ANSI C|floating point numbers with the specified precision.
 |`'a', 'A'`|C99   |floating point numbers in hexadecimal.
 |`'c'`     |ANSI C|character
-|`'C'`     |XSI   |character (Originally, the argument is interpreted as `wchar_t`.)
+|`'C'`     |XSI   |character (same as `'c'` in this implementation. Originally, the argument is interpreted as `wchar_t`.)
 |`'s'`     |ANSI C|string
-|`'S'`     |XSI   |string (Originally, the argument is interpreted as `wchar_t`)
+|`'S'`     |XSI   |string (same as `'s'` in this implementation. Originally, the argument is interpreted as `wchar_t`)
 |`'p'`     |ANSI C|pointer (same as `%#x` in this implementation)
-|`'n'`     |ANSI C|stores the number of the characters output so far to `value[0]`
+|`'n'`     |ANSI C|stores to `value[0]` the number of the characters output until this point
 |`'%'`     |ANSI C|output "%"
 
 ```javascript
