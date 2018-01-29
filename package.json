@@ -1,6 +1,6 @@
 {
   "name": "agh.sprintf",
-  "version": "0.0.6",
+  "version": "0.0.8",
   "description": "C, POSIX compatible sprintf written in JavaScript",
   "main": "agh.sprintf.js",
   "scripts": {
@@ -18,5 +18,6 @@
   "bugs": {
     "url": "https://github.com/akinomyoga/agh.sprintf.js/issues"
   },
-  "homepage": "https://github.com/akinomyoga/agh.sprintf.js"
+  "homepage": "https://github.com/akinomyoga/agh.sprintf.js",
+  "tonicExampleFilename": "example.js"
 }

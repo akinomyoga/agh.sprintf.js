@@ -91,7 +91,7 @@ agh.sprintf("%f, %F", Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY); // "i
 agh.sprintf("%c, %C", 12354, 12354); // "あ, あ"
 agh.sprintf("%s, %S", 12354, 12354); // "12354, 12354"
 agh.sprintf("%d", 12345); // "12345"
-agh.sprintf("%p", 12345); // "3039"
+agh.sprintf("%p", 12345); // "0x3039"
 agh.sprintf("%d%n", 12345, a = []); // "12345", a == [5]
 agh.sprintf("%%"); // "%"
 ```
