@@ -3,7 +3,7 @@
 all:
 .PHONY: all publish
 
-package_directory := ./package
+package_directory := ./out/package
 
 $(package_directory):
 	mkdir -p $@
@@ -34,6 +34,10 @@ module_files += $(package_directory)/example.js $(package_directory)/example.htm
 $(package_directory)/example.js: example.js | $(package_directory)
 	cp $< $@
 $(package_directory)/example.html: example.html | $(package_directory)
+	cp $< $@
+
+module_files += $(package_directory)/test.js
+$(package_directory)/test.js: test.js | $(package_directory)
 	cp $< $@
 
 all: $(module_files)
