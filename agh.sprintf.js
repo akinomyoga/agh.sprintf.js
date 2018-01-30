@@ -238,7 +238,17 @@
 //   <左余白> <符号> <ゼロ> <中身> <右余白>
 //   計算の順番としては、<符号>+<中身> のペアを決定してから、<ゼロ> または <余白> を付加すれば良い。
 
-(function(window) {
+(function(__exports) {
+  // 本来 this にグローバルオブジェクトが入るはず。
+  // もし空だった場合はこのスクリプトを呼び出したときの this を入れる。
+  var __global = this || __exports || {};
+  if (typeof __global.agh !== 'undefined')
+    __exports = __global.agh;
+  else if (typeof __global.module !== 'undefined' && typeof __global.module.exports != 'undefined')
+    __exports = __global.module.exports;
+  else if (__exports == null)
+    __exports = __global.agh = {};
+
   function repeatString(s, len) {
     if (len <= 0) return "";
     var ret = "";
@@ -735,39 +745,32 @@
     return [outputLength, output];
   }
 
-  function sprintf() {
+  __exports.sprintf = function sprintf() {
     var result = printf_impl.apply(this, arguments);
     return result[1];
-  }
-  function printf() {
-    var result = printf_impl.apply(this, arguments);
-    printh(agh.Text.Escape(result[1], 'html'));
-    return result[0];
-  }
-  function vsprintf(fmt, args) {
+  };
+
+  __exports.vsprintf = function vsprintf(fmt, args) {
     var result = printf_impl.apply(this, [fmt].concat(args));
     return result[1];
-  }
+  };
 
-  var _exports = typeof window.agh !== "undefined" ? agh : typeof exports !== "undefined" ? exports : window;
-  if (_exports) {
-    _exports.sprintf = sprintf;
-    _exports.vsprintf = vsprintf;
+  var stdout = null;
+  if (__global.agh && __global.printh)
+    stdout = function(text) { printh(agh.Text.Escape(text, 'html')); };
+  else if (__global.process && __global.process.stdout)
+    stdout = function(text) { process.stdout.write(text); };
+  else if (__global.console && __global.console.log)
+    stdout = function(text) { console.log(text); };
+  else
+    stdout = function(text) { document.write(text); };
 
-    if (window.agh && window.printh)
-      _exports.printf = function() {
-        var result = printf_impl.apply(this, arguments);
-        printh(agh.Text.Escape(result[1], 'html'));
-        return result[0];
-      };
+  __exports.printf = function printf() {
+    var result = printf_impl.apply(this, arguments);
+    stdout(result[1]);
+    return result[0];
+  };
 
-    if (window.process && window.process.stdout)
-      _exports.printf = function() {
-        var result = printf_impl.apply(this, arguments);
-        process.stdout.write(result[1]);
-        return result[0];
-      };
-  }
 })(this);
 
 // test

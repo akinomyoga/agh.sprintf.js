@@ -1,7 +1,7 @@
 {
   "name": "agh.sprintf",
-  "version": "0.0.8",
-  "description": "C, POSIX compatible sprintf written in JavaScript",
+  "version": "0.0.9",
+  "description": "C/POSIX conforming sprintf implementation in JavaScript",
   "main": "agh.sprintf.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

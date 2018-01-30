@@ -15,7 +15,7 @@ console.log(agh.sprintf("%f, %F", infty, infty)); // "inf, INF"
 
 // characters/strings
 
-agh.sprintf("%c, %s", 12354, 12354); // "あ, 1254"
+console.log(agh.sprintf("%c, %s", 12354, 12354)); // "あ, 12354"
 
 // misc conversions
 
