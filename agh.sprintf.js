@@ -771,6 +771,9 @@
     return result[0];
   };
 
+  if (__global.agh && __global.agh.scripts)
+    __global.agh.scripts.register("agh.sprintf.js");
+
 })(this);
 
 // test
