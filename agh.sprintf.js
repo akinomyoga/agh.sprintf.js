@@ -671,6 +671,50 @@
     '%': {noValue: true       , integral: false, signed: false, prefix: null            , conv: convertEscaped       }
   };
 
+  // printf (Shell Utility) のエスケープシーケンスについて。
+  // http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap05.html#tag_05
+  //
+  // The format string can also contains the following escape sequences started by *\<backslash\>* character.
+  //
+  // | Sequence   | Standard  | Description  |
+  // |:-----------|:----------|:-------------|
+  // | \\         | XCU       | backslash    |
+  // | \a         | XCU       | BEL          |
+  // | \b         | XCU       | BS           |
+  // | \f         | XCU       | FF           |
+  // | \n         | XCU       | LF           |
+  // | \r         | XCU       | CR           |
+  // | \t         | XCU       | HT           |
+  // | \v         | XCU       | VT           |
+  // | \e         | coreutils | ESC          |
+  // | \NNN       | coreutils | octal code   |
+  // | \xHH       | coreutils | hex code     |
+  // | \uHHHH     | coreutils | unicode (BMP)|
+  // | \UHHHHHHHH | coreutils | unicode      |
+  //
+  function processEscapeSequencesInFormat(fmt) {
+    return fmt.replace(/\\(?:[\\abfnrtve]|x[\da-fA-F]{1,2}|u[\da-fA-F]{1,4}|U[\da-fA-F]{1,8}|[0-7]{1,3})/, function($0) {
+      switch ($0.slice(1,2)) {
+      case '\': return '\\';
+      case 'a': return '\x07';
+      case 'b': return '\b';
+      case 'f': return '\f';
+      case 'n': return '\n';
+      case 'r': return '\r';
+      case 't': return '\t';
+      case 'v': return '\v';
+      case 'e': return '\x1b';
+      case 'x': case 'u': case 'U':
+        return String.fromCharCode(parseInt($0.slice(2), 16)).replace(/%/, '%%');
+      default:
+        if (/^\\[0-7]/.test($0))
+          return String.fromCharCode(parseInt($0.slice(1), 8)).replace(/%/, '%%');
+        return $0;
+      }
+
+    });
+  }
+
   function printf_impl(fmt) {
     // ※arguments の fmt を除いた部分の番号は 1 から始まり、
     //   位置指定子も 1 から始まるので、位置番号はそのまま arguments の添字に指定して良い。
